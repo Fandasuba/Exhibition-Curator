@@ -9,12 +9,15 @@ interface Item {
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
+  const [apiSource, setApiSource] = useState('europeana');
   const [results, setResults] = useState<Item[] | null>(null);
 
   async function handleSearch() {
     try {
-      const response = await fetch(`/api/europeana?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}`);
+      console.log(response)
       const data = await response.json();
+      console.log(data, "This is the data <-------");
       setResults(data.items || []);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -25,6 +28,16 @@ export default function HomePage() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Viking Art Search</h1>
       <div className="flex gap-2 mb-4">
+        <select
+          value={apiSource}
+          onChange={(e) => setApiSource(e.target.value)}
+          className="p-2 border rounded"
+        >
+          <option value="europeana">Europeana API</option>
+          <option value="finna">National Finnish Museum</option>
+          <option value="digitaltmuseum">DigitaltMuseum API</option>
+          <option value="soch">Swedish Open Cultural Heritage</option>
+        </select>
         <input
           type="text"
           placeholder="Search for Viking art..."
@@ -43,6 +56,7 @@ export default function HomePage() {
               <li key={index} className="mb-2">
                 <img src={item.edmPreview} alt={item.title} className="w-32 h-auto mb-2" />
                 <p>{item.title}</p>
+                {/* Additional details can be added here */}
               </li>
             ))}
           </ul>
