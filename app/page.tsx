@@ -25,6 +25,7 @@ export default function HomePage() {
     } else {
       // GET request for other APIs
       response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}`);
+      console.log(response, "This is the reponse <-------")
     }
 
     if (!response.ok) {
@@ -56,6 +57,7 @@ export default function HomePage() {
           className="p-2 border rounded"
         >
           <option value="europeana">Europeana API</option>
+          <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
           <option value="natmus">National Museum Denmark</option>
           <option value="finna">National Finnish Museum</option>
           {/* <option value="digitaltmuseum">DigitaltMuseum API</option>
