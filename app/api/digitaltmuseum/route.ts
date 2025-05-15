@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
-    // Optionally filter results by year range if the API doesn't handle it directly
+
     const filteredItems = data.items?.filter((item: any) => {
       const year = parseInt(item.year, 10);
       return year >= parseInt(yearMin) && year <= parseInt(yearMax);

@@ -13,16 +13,38 @@ export default function HomePage() {
   const [results, setResults] = useState<Item[] | null>(null);
 
   async function handleSearch() {
-    try {
-      const response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}`);
-      console.log(response)
-      const data = await response.json();
-      console.log(data, "This is the data <-------");
-      setResults(data.items || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+  try {
+    let response;
+    if (apiSource === 'natmus') {
+      // POST request with JSON body for Natmus
+      response = await fetch(`/api/natmus`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+    } else {
+      // GET request for other APIs
+      response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}`);
     }
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data, "This is the data <-------");
+
+    // Set results based on API source and data structure:
+    if (apiSource === 'natmus') {
+      // Assuming Elasticsearch style results, adapt if needed:
+      setResults(data.hits?.hits?.map((hit: any) => hit._source) || []);
+    } else {
+      setResults(data.items || []);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
+}
 
   return (
     <div className="p-4">
@@ -34,9 +56,10 @@ export default function HomePage() {
           className="p-2 border rounded"
         >
           <option value="europeana">Europeana API</option>
+          <option value="natmus">National Museum Denmark</option>
           <option value="finna">National Finnish Museum</option>
-          <option value="digitaltmuseum">DigitaltMuseum API</option>
-          <option value="soch">Swedish Open Cultural Heritage</option>
+          {/* <option value="digitaltmuseum">DigitaltMuseum API</option>
+          <option value="soch">Swedish Open Cultural Heritage</option> */}
         </select>
         <input
           type="text"
