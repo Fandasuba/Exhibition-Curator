@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
 
     
         const data = await response.json()
-        console.log(data)
-        return NextResponse.json(data);
+        console.log("This is the data inside the oxford api.", data)
+        return NextResponse.json(data.member);
     } catch(error) {
         console.error("Error:", error)
         return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 });
