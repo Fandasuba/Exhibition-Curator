@@ -57,6 +57,7 @@ export default function HomePage() {
           className="p-2 border rounded"
         >
           <option value="europeana">Europeana API</option>
+          <option value="digital-bodleian-oxford">Oxford University's Digital Manuscripts</option>
           <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
           <option value="natmus">National Museum Denmark</option>
           <option value="finna">National Finnish Museum</option>
