@@ -1,50 +1,55 @@
 'use client';
 
 import { useState } from 'react';
+import { formatSources } from './utils/util-functions';
 
 interface Item {
   edmPreview: string;
   title: string;
+  description: string;
+  source: string;
 }
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
   const [apiSource, setApiSource] = useState('europeana');
   const [results, setResults] = useState<Item[] | null>(null);
+  const [sourceLink, setSourceLink] = useState<string>("europeana");
 
   async function handleSearch() {
-  try {
-    let response;
-    if (apiSource === 'natmus') {
-      // POST request with JSON body for Natmus
-      response = await fetch(`/api/natmus`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
-      });
-    } else {
-      // GET request for other APIs
-      response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}`);
-      console.log(response, "This is the reponse <-------")
+    try {
+      setSourceLink(formatSources(apiSource))
+      let response;
+      if (apiSource === 'natmus') {
+        // POST request with JSON body for Natmus
+        response = await fetch(`/api/natmus`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+      } else {
+        // GET request for other APIs
+        response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}`);
+        console.log(response, "This is the reponse <-------")
+      }
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(data, "This is the data <-------");
+      
+      // Set results based on API source and data structure:
+      if (apiSource === 'natmus') {
+        // Assuming Elasticsearch style results, adapt if needed:
+        setResults(data.hits?.hits?.map((hit: any) => hit._source) || []);
+      } else {
+        setResults(data.items || []);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data, "This is the data <-------");
-
-    // Set results based on API source and data structure:
-    if (apiSource === 'natmus') {
-      // Assuming Elasticsearch style results, adapt if needed:
-      setResults(data.hits?.hits?.map((hit: any) => hit._source) || []);
-    } else {
-      setResults(data.items || []);
-    }
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
 }
 
   return (
@@ -58,9 +63,9 @@ export default function HomePage() {
         >
           <option value="europeana">Europeana API</option>
           <option value="digital-bodleian-oxford">Oxford University's Digital Manuscripts</option>
-          <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
+          {/* <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
           <option value="natmus">National Museum Denmark</option>
-          <option value="finna">National Finnish Museum</option>
+          <option value="finna">National Finnish Museum</option> */}
           {/* <option value="digitaltmuseum">DigitaltMuseum API</option>
           <option value="soch">Swedish Open Cultural Heritage</option> */}
         </select>
@@ -82,7 +87,9 @@ export default function HomePage() {
               <li key={index} className="mb-2">
                 <img src={item.edmPreview} alt={item.title} className="w-32 h-auto mb-2" />
                 <p>{item.title}</p>
-                {/* Additional details can be added here */}
+                <p>{item.description}</p>
+                <a href={item.source}> Source: {sourceLink}</a>
+                {/* Additional details can be added here. Don't forget to alter the interfaces here and in the api files. */}
               </li>
             ))}
           </ul>
