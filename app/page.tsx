@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { formatSources } from './utils/util-functions';
+import { formatSources, searchForRNG } from './utils/util-functions';
 import Pagination from './components/pagination';
 
 interface Item {
@@ -19,11 +19,16 @@ interface PaginationInfo {
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
+  const [setIdea, setSearchIdea] = useState('')
   const [apiSource, setApiSource] = useState('europeana');
   const [results, setResults] = useState<Item[] | null>(null);
   const [sourceLink, setSourceLink] = useState<string>("europeana");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
+useEffect(() => {
+  setSearchIdea(searchForRNG())
+})
+
   // Pagination state
   const [pagination, setPagination] = useState<PaginationInfo>({
     currentPage: 1,
@@ -116,7 +121,7 @@ export default function HomePage() {
         <div className="flex-1 flex gap-2">
           <input
             type="text"
-            placeholder="Search for Viking art..."
+            placeholder={setIdea}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="p-2 border rounded flex-1"
@@ -136,7 +141,8 @@ export default function HomePage() {
 
       {isLoading ? (
         <div className="flex justify-center my-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          {/* Simple spinner found online. Change the spinner to something with better house style later on. */}
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div> 
         </div>
       ) : results ? (
         <>

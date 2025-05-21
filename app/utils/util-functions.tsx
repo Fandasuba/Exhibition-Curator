@@ -39,3 +39,54 @@ export function oxfordTitleRegexCheck(title: string): string {
   return newTitle
   }
 }
+
+export function searchForRNG() {
+  const searchForIdeas = ["Vikings", "Battles", "Reconquista", "Plantagenet", "30 Years War", "Crusades", "Reformation", "Rennaissance", "Black Death", "Ottoman Empire", "Carolingian", "Anglo Saxons", "Holy Roman Empire", "Vatican", "Hansiatic League", "New World", "Tudors", "100 Years War", "Hasburg"]
+  const pickLength = searchForIdeas.length
+  const randomIndex = Math.floor(Math.random() * pickLength)
+  const randomIdea = searchForIdeas[randomIndex];
+
+switch (randomIdea) {
+    case "Vikings":
+      return "Try searching for the Vikings.";
+    case "Battles":
+      return "Explore historical battles.";
+    case "Reconquista":
+      return "Research the Reconquista.";
+    case "Plantagenet":
+      return "Learn about the Plantagenet dynasty.";
+    case "30 Years War":
+      return "Look into the Thirty Years War.";
+    case "Crusades":
+      return "Dive into the Crusades.";
+    case "Reformation":
+      return "Discover the Reformation.";
+    case "Renaissance":
+      return "Explore the Renaissance.";
+    case "Black Death":
+      return "Read about the Black Death.";
+    case "Ottoman Empire":
+      return "Search for the Ottoman Empire.";
+    case "Carolingian":
+      return "Study the Carolingian period.";
+    case "Anglo Saxons":
+      return "Learn about the Anglo-Saxons.";
+    case "Holy Roman Empire":
+      return "Explore the Holy Roman Empire.";
+    case "Vatican":
+      return "Look up the Vatican's history.";
+    case "Hanseatic League":
+      return "Research the Hanseatic League.";
+    case "New World":
+      return "Discover the New World.";
+    case "Tudors":
+      return "Learn about the Tudors.";
+    case "100 Years War":
+      return "Explore the 100 Years War.";
+    case "Habsburg":
+      return "Research the Habsburg dynasty.";
+    default:
+      return "";
+  }
+
+}
