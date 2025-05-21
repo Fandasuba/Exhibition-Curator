@@ -33,7 +33,7 @@ export function oxfordTitleRegexCheck(title: string): string {
   if (title === undefined){
     return 'Title preview not provided by the collection'
   } else {
-  console.log(title, "Inside the regex file for oxford title.")
+  // console.log(title, "Inside the regex file for oxford title.")
   const regex = /<em>(.*?)<\/em>/g
   const newTitle = title[0].replace(regex, '$1');
   return newTitle

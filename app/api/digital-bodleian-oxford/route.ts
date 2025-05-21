@@ -25,39 +25,45 @@ interface FrontendItem {
 
 export async function GET(request: NextRequest) {
     const query = request.nextUrl.searchParams.get('query') || '';
+    const page = parseInt(request.nextUrl.searchParams.get('page') || '1', 10);
+    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '20', 10);
+    
+    // Validate the limit (API supports 20, 40, 100)
+    const validatedLimit = [20, 40, 100].includes(limit) ? limit : 20;
     
     try {
-       const apiUrl = `https://digital.bodleian.ox.ac.uk/search/?q=${encodeURIComponent(query)}`
-       const response = await fetch(apiUrl, {
+        // The API uses 'page' parameter directly and 'rows' for limit
+        const apiUrl = `https://digital.bodleian.ox.ac.uk/search/?q=${encodeURIComponent(query)}&page=${page > 1 ? page : ''}&rows=${validatedLimit}`;
+        console.log("Requesting URL:", apiUrl);
+        
+        const response = await fetch(apiUrl, {
             headers: {
                 'Accept': 'application/ld+json',
             }
         });
-   
+    
         if (!response.ok) {
             throw new Error(`API responded with status ${response.status}`);
         }
-
         const data = await response.json();
-        console.log("This is the data inside the oxford api.", data.member);
+        console.log("API response metadata:", {
+            totalItems: data.totalItems,
+            totalPages: data.view?.totalPages,
+            nextPage: data.view?.next,
+            lastPage: data.view?.last
+        });
         
         // Map the data to match the frontend's expected structure
         const items: FrontendItem[] = data.member.map((item: DigitalBodleianItem) => {
-            // Extract thumbnail URL (edmPreview in frontend)
-            const thumbnailUrl = item.thumbnail && item.thumbnail.length > 0 
-                ? item.thumbnail[0].id 
-                : ''; // Fallback empty string if no thumbnail
+            const thumbnailUrl = item.thumbnail && item.thumbnail.length > 0
+                ? item.thumbnail[0].id
+                : '';
             
-            
-            const getTitle = item.displayFields.title
-            const title = oxfordTitleRegexCheck(getTitle)
-            const getDescription = item.displayFields.snippet
-            const description = oxfordDescriptionRegexCheck(getDescription)
-            console.log(title, "<------------ title after RegexCheck")
-            console.log(getTitle, "<------------- Get title")
-            // console.log(description, "<------------ Description after RegexCheck")
-            // console.log(getDescription, "<------------- Get Description")
-            const source = item.id
+            const getTitle = item.displayFields.title;
+            const title = oxfordTitleRegexCheck(getTitle);
+            const getDescription = item.displayFields.snippet;
+            const description = oxfordDescriptionRegexCheck(getDescription);
+            const source = item.id;
                 
             return {
                 edmPreview: thumbnailUrl,
@@ -66,7 +72,19 @@ export async function GET(request: NextRequest) {
                 source: source
             };
         });
-        return NextResponse.json({ items });
+        
+        // Extract pagination information from the response
+        return NextResponse.json({ 
+            items,
+            pagination: {
+                currentPage: page,
+                totalPages: data.view?.totalPages || 1,
+                totalItems: data.totalItems || 0,
+                limit: validatedLimit,
+                hasNextPage: !!data.view?.next,
+                hasPrevPage: page > 1
+            }
+        });
         
     } catch(error) {
         console.error("Error:", error);
