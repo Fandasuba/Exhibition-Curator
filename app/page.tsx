@@ -19,15 +19,19 @@ interface PaginationInfo {
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
-  const [setIdea, setSearchIdea] = useState('')
   const [apiSource, setApiSource] = useState('europeana');
   const [results, setResults] = useState<Item[] | null>(null);
   const [sourceLink, setSourceLink] = useState<string>("europeana");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
+  const [setIdea, setSearchIdea] = useState('')
+  const [randomIdea, setRandomIdea] = useState<boolean>(false);
+
 useEffect(() => {
-  setSearchIdea(searchForRNG())
-})
+    if (!randomIdea) {
+      setSearchIdea(searchForRNG());
+      setRandomIdea(true);
+    }
+  }, [randomIdea]);
 
   // Pagination state
   const [pagination, setPagination] = useState<PaginationInfo>({
@@ -52,8 +56,7 @@ useEffect(() => {
         body: JSON.stringify({ query, page, limit }),
       });
     } else {
-      // GET request for other APIs
-      const apiPath = apiSource === 'digital-bodleian-oxford' ? 'digital-bodleian-oxford' : apiSource;
+      const apiPath = apiSource
       response = await fetch(`/api/${apiPath}?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
     }
    
@@ -64,11 +67,10 @@ useEffect(() => {
     const data = await response.json();
     console.log("Search response:", data);
     
-    // Set results based on API source and data structure
     if (apiSource === 'natmus') {
       // Assuming Elasticsearch style results, adapt if needed:
       setResults(data.hits?.hits?.map((hit: any) => hit._source) || []);
-      // You'll need to adapt pagination info from Elasticsearch response
+      // Adapt Pagination for Elastisearch if i end up using this api in the future. Probably not.
     } else {
       setResults(data.items || []);
       if (data.pagination) {
@@ -103,7 +105,7 @@ useEffect(() => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Viking Art Search</h1>
+      <h1 className="text-2xl font-bold mb-4"> Explore Medieval Europe</h1>
       <div className="flex flex-col md:flex-row gap-2 mb-4">
         <select
           value={apiSource}
