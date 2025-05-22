@@ -121,17 +121,17 @@ export async function GET(request: NextRequest) {
                 const originalDescription = item.displayFields?.snippet;
                 description = manifestDescription ? [manifestDescription] : originalDescription || [''];
                 
-                // Extract homepage URL from HTML or fallback
+                // Source link for the front end cards.
                 const homepageValue = homepageField?.value || '';
                 const homepageMatch = homepageValue.match(/href="([^"]+)"/);
                 source = homepageMatch ? homepageMatch[1] : item.id;
                 
-                // Combine date and place for author field
+                // Combine date and place for author field - Oxford doesnt have an author field as it sometimes appears in the title. So, combining location and rough dates makes sense.
                 const dateStatement = dateField?.value || '';
                 const placeOfOrigin = placeField?.value || '';
                 author = [dateStatement, placeOfOrigin].filter(Boolean).join(', ');
             } else {
-                // Fallback to original data if no manifest (these are likely already arrays)
+                // Fallback to original api implementation if manifest doenst work for an entry.
                 thumbnailUrl = item.thumbnail && item.thumbnail.length > 0 ? item.thumbnail[0].id : '';
                 title = item.displayFields?.title || [''];
                 description = item.displayFields?.snippet || [''];
