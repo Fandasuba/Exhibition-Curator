@@ -8,6 +8,8 @@ interface Item {
   title: string;
   description: string;
   source: string;
+  provider?: string;
+  author?: string;
 }
 
 interface PaginationInfo {
@@ -168,11 +170,17 @@ useEffect(() => {
                     </div>
                     <h3 className="font-bold">{item.title || 'No title'}</h3>
                     <p className="text-sm mb-2 flex-grow">
+                      {item.author}
+                    </p>
+                    <p className="text-sm mb-2 flex-grow">
                       {item.description ? (
                         item.description.length > 150 ? 
                           `${item.description.substring(0, 150)}...` : 
                           item.description
                       ) : 'No description available'}
+                    </p>
+                    <p className="text-sm mb-2 flex-grow">
+                      {item.provider}
                     </p>
                     <a 
                       href={item.source} 

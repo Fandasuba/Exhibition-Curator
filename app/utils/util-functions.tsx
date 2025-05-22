@@ -1,3 +1,6 @@
+import { error } from "console";
+import { Interface } from "readline";
+
 export function formatSources(apiSource: string): string {
   switch (apiSource) {
     case 'europeana':
@@ -90,3 +93,4 @@ switch (randomIdea) {
   }
 
 }
+

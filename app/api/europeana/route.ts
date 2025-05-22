@@ -4,7 +4,9 @@ interface FrontendItem {
   edmPreview: string;
   title: string;
   description: string;
+  provider: string;
   source: string;
+  author?: string;
 }
 
 interface EuropeanaItem {
@@ -13,6 +15,8 @@ interface EuropeanaItem {
   dcDescription: string;
   dataProvider: string;
   edmPreview: string;
+  dcCreator?: string;
+  country?: string;
 }
 
 export async function GET(request: Request) {
@@ -34,14 +38,16 @@ export async function GET(request: Request) {
     if (!response.ok) throw new Error('Error fetching Europeana API data');
     
     const data = await response.json();
-    console.log("This is the full data:", data)
-    console.log("Length of the data:",data.items.length)
-    // console.log(data.items, "This is the data.items in Europeana")
+    // console.log("This is the full data:", data)
+    // console.log("Length of the data:", data.items.length)
+    console.log(data.items, "This is the data.items in Europeana")
     const items: FrontendItem[] = data.items.map((item: EuropeanaItem) => ({
       title: item.title[0] || 'No Title provided by Collection',
-      source: `${item.guid}`,
+      source: `${item.guid}` ,
+      provider: item.dataProvider,
       edmPreview: item.edmPreview || null,
       description: item.dcDescription || 'No Description provided by Collection',
+      author: `${item.dcCreator}, ${item.country}`
     }));
     const totalItems = data.totalResults || 0;
     const totalPages = Math.ceil(totalItems / validatedLimit);
