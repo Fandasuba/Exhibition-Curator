@@ -30,6 +30,17 @@ interface FrontendItem {
   provider?: string;
 }
 
+// Add interfaces for manifest metadata
+interface MetadataField {
+  label: string;
+  value: string;
+}
+
+interface ManifestData {
+  metadata?: MetadataField[];
+  thumbnail?: Array<{ id: string }>;
+}
+
 export async function GET(request: NextRequest) {
     const query = request.nextUrl.searchParams.get('query') || '';
     const page = parseInt(request.nextUrl.searchParams.get('page') || '1', 10);
@@ -55,7 +66,7 @@ export async function GET(request: NextRequest) {
         const data = await response.json();
         
         // Store manifest data for each member
-        const manifestDataMap = new Map();
+        const manifestDataMap = new Map<number, ManifestData>();
         
         // Fetch manifest data for each member
         if (data.member && Array.isArray(data.member)) {
@@ -73,7 +84,7 @@ export async function GET(request: NextRequest) {
                         });
                         
                         if (manifestResponse.ok) {
-                            const manifestData = await manifestResponse.json();
+                            const manifestData: ManifestData = await manifestResponse.json();
                             // console.log(`Manifest data for member ${i}:`, manifestData.metadata);
                             manifestDataMap.set(i, manifestData);
                         } else {
@@ -91,8 +102,8 @@ export async function GET(request: NextRequest) {
             const manifestData = manifestDataMap.get(index);
             
             let thumbnailUrl = '';
-            let title: any = '';
-            let description: any = '';
+            let titleForRegex: string | string[] = '';
+            let descriptionForRegex: string | string[] = '';
             let source = '';
             let author = '';
             
@@ -100,11 +111,11 @@ export async function GET(request: NextRequest) {
                 const metadata = manifestData.metadata;
                 
                 // Find specific fields in metadata array for the new better data method implementation.
-                const homepageField = metadata.find((field: any) => field.label === 'Homepage');
-                const titleField = metadata.find((field: any) => field.label === 'Title');
-                const dateField = metadata.find((field: any) => field.label === 'Date Statement');
-                const placeField = metadata.find((field: any) => field.label === 'Place of Origin');
-                const descripton = metadata.find((field: any) => field.label === 'Description')
+                const homepageField = metadata.find((field: MetadataField) => field.label === 'Homepage');
+                const titleField = metadata.find((field: MetadataField) => field.label === 'Title');
+                const dateField = metadata.find((field: MetadataField) => field.label === 'Date Statement');
+                const placeField = metadata.find((field: MetadataField) => field.label === 'Place of Origin');
+                const descriptionField = metadata.find((field: MetadataField) => field.label === 'Description');
                 
                 // Thumbnails
                 thumbnailUrl = manifestData.thumbnail?.[0]?.id || 
@@ -114,12 +125,12 @@ export async function GET(request: NextRequest) {
                 const manifestTitle = titleField?.value;
                 const originalTitle = item.displayFields?.title;
                 // Ensure title is in array format for the regex function otherwise errors. Same goes for description below.
-                title = manifestTitle ? [manifestTitle] : originalTitle || [''];
+                titleForRegex = manifestTitle ? [manifestTitle] : originalTitle || [''];
                 
                 // Description
-                const manifestDescription = description?.value; // Sometimes the meta can have none 1, or 2 description fields. Typically the first index contains description on the item. The second typically is some added context from more recent years.
+                const manifestDescription = descriptionField?.value; // Sometimes the meta can have none 1, or 2 description fields. Typically the first index contains description on the item. The second typically is some added context from more recent years.
                 const originalDescription = item.displayFields?.snippet;
-                description = manifestDescription ? [manifestDescription] : originalDescription || [''];
+                descriptionForRegex = manifestDescription ? [manifestDescription] : originalDescription || [''];
                 
                 // Source link for the front end cards.
                 const homepageValue = homepageField?.value || '';
@@ -133,15 +144,15 @@ export async function GET(request: NextRequest) {
             } else {
                 // Fallback to original api implementation if manifest doenst work for an entry.
                 thumbnailUrl = item.thumbnail && item.thumbnail.length > 0 ? item.thumbnail[0].id : '';
-                title = item.displayFields?.title || [''];
-                description = item.displayFields?.snippet || [''];
+                titleForRegex = item.displayFields?.title || [''];
+                descriptionForRegex = item.displayFields?.snippet || [''];
                 source = item.id;
             }
             
             return {
                 edmPreview: thumbnailUrl,
-                title: oxfordTitleRegexCheck(title),
-                description: oxfordDescriptionRegexCheck(description),
+                title: oxfordTitleRegexCheck(Array.isArray(titleForRegex) ? titleForRegex : [titleForRegex]),
+                description: oxfordDescriptionRegexCheck(Array.isArray(descriptionForRegex) ? descriptionForRegex : [descriptionForRegex]),
                 source: source,
                 author: author || undefined
             };

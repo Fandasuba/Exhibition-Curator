@@ -1,6 +1,3 @@
-import { error } from "console";
-import { Interface } from "readline";
-
 export function formatSources(apiSource: string): string {
   switch (apiSource) {
     case 'europeana':
@@ -22,24 +19,24 @@ export function formatSources(apiSource: string): string {
   }
 }
 
-export function oxfordDescriptionRegexCheck(description: string): string {
-  if (description === undefined){
+export function oxfordDescriptionRegexCheck(description: string[]): string {
+  if (description === undefined || description.length === 0){
     return 'Description preview not provided by the collection'
   } else {
-  const regex = /<em>(.*?)<\/em>/g
-  const newDescription = description[0].replace(regex, '$1');
-  return newDescription
+    const regex = /<em>(.*?)<\/em>/g
+    const newDescription = description[0].replace(regex, '$1');
+    return newDescription
   }
 }
 
-export function oxfordTitleRegexCheck(title: string): string {
-  if (title === undefined){
+export function oxfordTitleRegexCheck(title: string[]): string {
+  if (title === undefined || title.length === 0){
     return 'Title preview not provided by the collection'
   } else {
-  // console.log(title, "Inside the regex file for oxford title.")
-  const regex = /<em>(.*?)<\/em>/g
-  const newTitle = title[0].replace(regex, '$1');
-  return newTitle
+    // console.log(title, "Inside the regex file for oxford title.")
+    const regex = /<em>(.*?)<\/em>/g
+    const newTitle = title[0].replace(regex, '$1');
+    return newTitle
   }
 }
 
@@ -48,7 +45,6 @@ export function searchForRNG() {
   const pickLength = searchForIdeas.length
   const randomIndex = Math.floor(Math.random() * pickLength)
   const randomIdea = searchForIdeas[randomIndex];
-
 switch (randomIdea) {
     case "Vikings":
       return "Try searching for the Vikings.";
@@ -91,6 +87,4 @@ switch (randomIdea) {
     default:
       return "";
   }
-
 }
-

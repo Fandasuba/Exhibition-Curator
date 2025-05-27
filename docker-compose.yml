@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  nextjs:
+    build: .
+    container_name: exhibition-nextjs
+    ports:
+      - "3000:3000"
+    environment:
+      # Database connection for container-to-container communication
+      DB_USER: craig-unix
+      DB_HOST: exhibition-postgres
+      DB_NAME: exhibition_curator
+      DB_USER_PASSWORD: password
+      DB_PORT: 5432
+      # Alternative single connection string format
+      DATABASE_URL: postgresql://craig-unix:password@exhibition-postgres:5432/exhibition_curator
+    networks:
+      - exhibition-network
+    restart: unless-stopped
+
+networks:
+  exhibition-network:
+    external: true

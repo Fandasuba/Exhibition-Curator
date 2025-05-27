@@ -68,17 +68,10 @@ useEffect(() => {
    
     const data = await response.json();
     console.log("Search response:", data);
-    
-    if (apiSource === 'natmus') {
-      // Assuming Elasticsearch style results, adapt if needed:
-      setResults(data.hits?.hits?.map((hit: any) => hit._source) || []);
-      // Adapt Pagination for Elastisearch if i end up using this api in the future. Probably not.
-    } else {
       setResults(data.items || []);
       if (data.pagination) {
         setPagination(data.pagination);
       }
-    }
   } catch (error) {
     console.error('Error fetching data:', error);
     setResults([]);
