@@ -38,7 +38,6 @@ export default function Home() {
       {/* Login form placeholder */}
       <section className="mb-6">
         <h2 className="text-xl mb-2">Login</h2>
-        {/* Add your login form here */}
         <button
           onClick={() => setShowModal(true)}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
@@ -50,19 +49,17 @@ export default function Home() {
       {/* Navigate to Find Artefacts page */}
       <section>
         <Link href="/artefacts">
-            <button
-                className="px-4 py-2 bg-green-600 text-white rounded"
-            >
-                Find Artefacts
-            </button>
+          <button className="px-4 py-2 bg-green-600 text-white rounded">
+            Find Artefacts
+          </button>
         </Link>
-       </section>
+      </section>
 
       {/* Modal for create account */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded max-w-sm w-full">
-            <h3 className="text-xl mb-4">Create Account</h3>
+          <div className="bg-white p-8 rounded-lg max-w-sm w-full shadow-lg">
+            <h3 className="text-2xl font-bold mb-4 text-gray-800">Create Account</h3>
 
             <input
               type="text"
@@ -70,7 +67,7 @@ export default function Home() {
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
-              className="border p-2 mb-3 w-full"
+              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
             />
             <input
               type="email"
@@ -78,7 +75,7 @@ export default function Home() {
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}
-              className="border p-2 mb-3 w-full"
+              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
             />
             <input
               type="password"
@@ -86,19 +83,19 @@ export default function Home() {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className="border p-2 mb-3 w-full"
+              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
             />
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateAccount}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium"
               >
                 Submit
               </button>

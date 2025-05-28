@@ -1,31 +1,59 @@
+import { Client } from "pg";
+import bcrypt from 'bcrypt';
+
 const apiUrl = process.env.NEXT_DOCKER_API_URL;
 
 export async function GET() {
-  const response = await fetch(`${apiUrl}/api/users`, {
-    method: "GET",
+
+    const client = new Client({
+    connectionString: apiUrl,
   });
 
-  const data = await response.json();
-
-  return new Response(JSON.stringify(data), {
-    status: response.status,
-    headers: { "Content-Type": "application/json" },
-  });
+    try {
+    await client.connect();
+    const result = await client.query('SELECT * FROM users');
+    return new Response(JSON.stringify(result.rows), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Database query error:", error);
+    return new Response("Internal Server Error", { status: 500 });
+  } finally {
+    await client.end();
+  }
 }
 
+
 export async function POST(request: Request) {
-  const body = await request.json();
-
-  const response = await fetch(`${apiUrl}/api/users`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+  const client = new Client({
+    connectionString: apiUrl,
   });
 
-  const data = await response.json();
+  try {
+    const body = await request.json();
+    const { username, email, password } = body;
 
-  return new Response(JSON.stringify(data), {
-    status: response.status,
-    headers: { "Content-Type": "application/json" },
-  });
+    // This is the encryption package i am trying out.
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    await client.connect();
+
+    // Insert user into the database
+    const result = await client.query(
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
+      [username, email, hashedPassword]
+    );
+
+    return new Response(JSON.stringify(result.rows[0]), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Database query error:", error);
+    return new Response("Internal Server Error", { status: 500 });
+  } finally {
+    await client.end();
+  }
 }
