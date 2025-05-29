@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { formatSources, searchForRNG } from '../utils/util-functions';
+import { searchForRNG } from '../utils/util-functions';
 import Pagination from '../components/pagination';
+import Card from '../components/itemCards';
 
 interface Item {
   edmPreview: string;
@@ -24,7 +24,7 @@ export default function HomePage() {
   const [query, setQuery] = useState('');
   const [apiSource, setApiSource] = useState('europeana');
   const [results, setResults] = useState<Item[] | null>(null);
-  const [sourceLink, setSourceLink] = useState<string>("europeana");
+  // const [sourceLink, setSourceLink] = useState<string>("europeana");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [setIdea, setSearchIdea] = useState('')
   const [randomIdea, setRandomIdea] = useState<boolean>(false);
@@ -49,20 +49,7 @@ useEffect(() => {
   
   setIsLoading(true);
   try {
-    setSourceLink(formatSources(apiSource));
-    let response;
-    if (apiSource === 'natmus') {
-      // POST request with JSON body for Natmus
-      response = await fetch(`/api/natmus`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, page, limit }),
-      });
-    } else {
-      const apiPath = apiSource
-      response = await fetch(`/api/${apiPath}?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`);
-    }
-   
+     const response = await fetch(`/api/${apiSource}?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`)
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
@@ -109,7 +96,7 @@ useEffect(() => {
           className="p-2 border rounded"
         >
           <option value="europeana">Europeana API</option>
-          <option value="digital-bodleian-oxford">Oxford University&apo;s Digital Manuscripts</option>
+          <option value="digital-bodleian-oxford">Oxford University&apos;s Digital Manuscripts</option>
           {/* <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
           <option value="natmus">National Museum Denmark</option>
           <option value="finna">National Finnish Museum</option> */}
@@ -148,43 +135,15 @@ useEffect(() => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {results.map((item: Item, index: number) => (
-                  <div key={index} className="border rounded p-4 flex flex-col">
-                    <div className="h-40 overflow-hidden flex items-center justify-center mb-2">
-                      {item.edmPreview ? (
-                        <Image 
-                          src={item.edmPreview} 
-                          alt={item.title} 
-                          className="max-h-full object-contain" 
-                        />
-                      ) : (
-                        <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-                          No image
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-bold">{item.title || 'No title'}</h3>
-                    <p className="text-sm mb-2 flex-grow">
-                      {item.author}
-                    </p>
-                    <p className="text-sm mb-2 flex-grow">
-                      {item.description ? (
-                        item.description.length > 150 ? 
-                          `${item.description.substring(0, 150)}...` : 
-                          item.description
-                      ) : 'No description available'}
-                    </p>
-                    <p className="text-sm mb-2 flex-grow">
-                      {item.provider}
-                    </p>
-                    <a 
-                      href={item.source} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline text-sm"
-                    >
-                      Source: {sourceLink}
-                    </a>
-                  </div>
+                  <Card
+                    key={index}
+                    title={item.title}
+                    description={item.description}
+                    author={item.author}
+                    provider={item.provider}
+                    source={item.source}
+                    image={item.edmPreview}
+                  />
                 ))}
               </div>
               

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUser } from "./user-context";
+import Card from "./components/itemCards";
 
 interface CreateFormData {
   username: string;
@@ -18,6 +19,17 @@ interface LoginFormData {
 interface LoginResult {
   success: boolean;
   error?: string;
+}
+
+interface ExhibitionItem {
+  id: string;
+  title: string;
+  description?: string;
+  author?: string;
+  provider?: string;
+  edmPreview?: string;
+  source?: string;
+  saved_items?: ExhibitionItem[];
 }
 
 export default function Home() {
@@ -37,6 +49,31 @@ export default function Home() {
   });
 
   const [loginError, setLoginError] = useState<string>("");
+
+  // Exhibition states
+  const [exhibitions, setExhibitions] = useState<ExhibitionItem[]>([]);
+  const [selectedExhibition, setSelectedExhibition] = useState<string | null>(null);
+  const [showExhibitionModal, setShowExhibitionModal] = useState<boolean>(false);
+  const [newExhibitionTitle, setNewExhibitionTitle] = useState<string>('');
+  const [exhibitionLoading, setExhibitionLoading] = useState<boolean>(false);
+  const [exhibitionMessage, setExhibitionMessage] = useState<string>('');
+
+  // Fetch exhibitions when user logs in
+  useEffect(() => {
+    const fetchExhibitions = async () => {
+      if (!isLoggedIn || !user) return;
+
+      try {
+        const response = await fetch(`/api/exhibitions?userId=${user.id}`);
+        const data: ExhibitionItem[] = await response.json();
+        setExhibitions(data);
+      } catch (error) {
+        console.error('Error fetching exhibitions:', error);
+      }
+    };
+
+    fetchExhibitions();
+  }, [isLoggedIn, user]);
 
   // Typed event handlers for input change events
   const handleCreateChange = (
@@ -88,18 +125,61 @@ export default function Home() {
 
   const handleLogout = (): void => {
     logout();
+    // Clear exhibition data on logout
+    setExhibitions([]);
+    setSelectedExhibition(null);
+  };
+
+  // Exhibition handlers
+  const handleAddExhibition = async () => {
+    if (!isLoggedIn || !user || !newExhibitionTitle) {
+      setExhibitionMessage('Please provide a title and be logged in.');
+      return;
+    }
+
+    setExhibitionLoading(true);
+    setExhibitionMessage('');
+
+    try {
+      const response = await fetch('/api/exhibitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          title: newExhibitionTitle,
+        }),
+      });
+
+      const data: ExhibitionItem = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data as unknown as string || 'Failed to add exhibition');
+      }
+
+      setExhibitions((prev) => [...prev, data]);
+      setNewExhibitionTitle('');
+      setShowExhibitionModal(false);
+    } catch (error) {
+      setExhibitionMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setExhibitionLoading(false);
+    }
+  };
+
+  const handleExhibitionClick = (exhibitionId: string) => {
+    setSelectedExhibition(selectedExhibition === exhibitionId ? null : exhibitionId);
   };
 
   if (loading) {
     return (
-      <main className="p-8 max-w-md mx-auto">
+      <main className="p-8 max-w-4xl mx-auto">
         <div>Loading...</div>
       </main>
     );
   }
 
   return (
-    <main className="p-8 max-w-md mx-auto">
+    <main className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl mb-6">Welcome to Exhibition Curator</h1>
 
       {isLoggedIn && (
@@ -141,7 +221,7 @@ export default function Home() {
       </section>
 
       {/* Navigate to Find Artefacts page */}
-      <section>
+      <section className="mb-6">
         <Link href="/artefacts">
           <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
             Find Artefacts
@@ -149,9 +229,67 @@ export default function Home() {
         </Link>
       </section>
 
+      {/* Exhibitions Section - Only show when logged in */}
+      {isLoggedIn && (
+        <section className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold">Your Exhibitions</h2>
+            <button
+              onClick={() => setShowExhibitionModal(true)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Create Exhibition
+            </button>
+          </div>
+          
+          {exhibitions.length === 0 ? (
+            <div className="p-6 bg-gray-100 rounded-lg text-center">
+              <p className="text-gray-600">You haven&apos;t created any exhibitions yet.</p>
+              <p className="text-sm text-gray-500 mt-2">Click &quot;Create Exhibition&quot; to get started!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {exhibitions.map((exhibition) => (
+                <div key={exhibition.id}>
+                  <div 
+                    onClick={() => handleExhibitionClick(exhibition.id)}
+                    className="border rounded p-4 cursor-pointer hover:shadow-md bg-blue-50 hover:bg-blue-100"
+                  >
+                    <h3 className="font-bold text-lg">{exhibition.title}</h3>
+                    <p className="text-sm text-gray-600">
+                      {exhibition.saved_items?.length || 0} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
+                    </p>
+                  </div>
+                  {selectedExhibition === exhibition.id && exhibition.saved_items && exhibition.saved_items.length > 0 && (
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-blue-500 pl-4">
+                      {exhibition.saved_items.map((item, index) => (
+                        <Card
+                          key={`${exhibition.id}-${index}`}
+                          title={item.title}
+                          description={item.description}
+                          author={item.author}
+                          provider={item.provider}
+                          source={item.source}
+                          image={item.edmPreview}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {selectedExhibition === exhibition.id && (!exhibition.saved_items || exhibition.saved_items.length === 0) && (
+                    <div className="mt-4 p-4 bg-gray-100 rounded border-l-4 border-blue-500">
+                      <p className="text-gray-600 italic">No items in this exhibition yet.</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg max-w-sm w-full shadow-lg">
             <h3 className="text-2xl font-bold mb-4 text-gray-800">Login</h3>
 
@@ -201,7 +339,7 @@ export default function Home() {
 
       {/* Create Account Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg max-w-sm w-full shadow-lg">
             <h3 className="text-2xl font-bold mb-4 text-gray-800">
               Create Account
@@ -247,6 +385,38 @@ export default function Home() {
                 Submit
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Exhibition Creation Modal */}
+      {showExhibitionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+            <h2 className="text-xl font-bold mb-4">Create New Exhibition</h2>
+            <input
+              type="text"
+              value={newExhibitionTitle}
+              onChange={(e) => setNewExhibitionTitle(e.target.value)}
+              placeholder="Enter exhibition title"
+              className="border p-2 w-full rounded mb-4"
+            />
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowExhibitionModal(false)}
+                className="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddExhibition}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                disabled={exhibitionLoading}
+              >
+                {exhibitionLoading ? 'Creating...' : 'Create'}
+              </button>
+            </div>
+            {exhibitionMessage && <p className="text-red-500 mt-2">{exhibitionMessage}</p>}
           </div>
         </div>
       )}
