@@ -64,7 +64,7 @@ export default function Home() {
       if (!isLoggedIn || !user) return;
 
       try {
-        const response = await fetch(`/api/exhibitions?userId=${user.id}`);
+        const response = await fetch(`/api/exhibits?userId=${user.id}`);
         const data: ExhibitionItem[] = await response.json();
         setExhibitions(data);
       } catch (error) {
