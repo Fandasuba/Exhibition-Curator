@@ -141,12 +141,12 @@ export default function Home() {
     setExhibitionMessage('');
 
     try {
-      const response = await fetch('/api/exhibitions', {
+      const response = await fetch('/api/exhibits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.id,
-          title: newExhibitionTitle,
+          user_id: user.id,
+          name: newExhibitionTitle,
         }),
       });
 
@@ -255,7 +255,7 @@ export default function Home() {
                     onClick={() => handleExhibitionClick(exhibition.id)}
                     className="border rounded p-4 cursor-pointer hover:shadow-md bg-blue-50 hover:bg-blue-100"
                   >
-                    <h3 className="font-bold text-lg">{exhibition.title}</h3>
+                    <b className="font-bold text-lg">{exhibition.title}</b>
                     <p className="text-sm text-gray-600">
                       {exhibition.saved_items?.length || 0} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
                     </p>
