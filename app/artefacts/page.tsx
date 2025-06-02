@@ -143,6 +143,7 @@ useEffect(() => {
                     provider={item.provider}
                     source={item.source}
                     image={item.edmPreview}
+                    showAddButton={true} // Show the add button on the artifacts page
                   />
                 ))}
               </div>

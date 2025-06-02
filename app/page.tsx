@@ -1,5 +1,5 @@
 "use client";
-
+// Need to fix the get request on this page to refresh the user so they can see their curated exhibits actual refresh when they add stuff.
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUser } from "./user-context";
@@ -21,15 +21,19 @@ interface LoginResult {
   error?: string;
 }
 
-interface ExhibitionItem {
-  id: string;
-  title: string;
-  description?: string;
-  author?: string;
-  provider?: string;
-  edmPreview?: string;
-  source?: string;
-  saved_items?: ExhibitionItem[];
+export interface SavedItem {
+    edmPreview: string;
+    title: string; 
+    description: string;
+    source: string;
+    provider: string;
+    author: string;
+}
+
+export interface ExhibitionItem {
+    id: string,
+    name: string,
+    saveditems?: SavedItem[]
 }
 
 export default function Home() {
@@ -58,24 +62,35 @@ export default function Home() {
   const [exhibitionLoading, setExhibitionLoading] = useState<boolean>(false);
   const [exhibitionMessage, setExhibitionMessage] = useState<string>('');
 
-  // Fetch exhibitions when user logs in
-  useEffect(() => {
-    const fetchExhibitions = async () => {
-      if (!isLoggedIn || !user) return;
+  const updateExhibits = async () => {
+    if (!isLoggedIn || !user) return;
 
-      try {
-        const response = await fetch(`/api/exhibits?userId=${user.id}`);
-        const data: ExhibitionItem[] = await response.json();
-        setExhibitions(data);
-      } catch (error) {
-        console.error('Error fetching exhibitions:', error);
+    try {
+      const response = await fetch(`/api/exhibits?userId=${user.id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch exhibitions');
       }
-    };
 
-    fetchExhibitions();
-  }, [isLoggedIn, user]);
+      const data: ExhibitionItem[] = await response.json();
+      
+      setExhibitions(data);
+      
+      console.log('Exhibitions updated:', data);
+    } catch (error) {
+      console.error("Error fetching exhibits belonging to user:", error);
+    }
+  };
 
-  // Typed event handlers for input change events
+  useEffect(() => {
+    if (isLoggedIn && user && !loading) {
+      updateExhibits();
+    }
+  }, [isLoggedIn, user, loading]);
+
   const handleCreateChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
@@ -88,7 +103,7 @@ export default function Home() {
   ): void => {
     const { name, value } = e.target;
     setLoginFormData((prev) => ({ ...prev, [name]: value }));
-    setLoginError(""); // Clear error when user types
+    setLoginError("");
   };
 
   const handleCreateAccount = async (): Promise<void> => {
@@ -118,6 +133,7 @@ export default function Home() {
       setShowLoginModal(false);
       setLoginFormData({ username: "", password: "" });
       setLoginError("");
+      // Note: updateExhibits will be called by the useEffect when isLoggedIn changes
     } else {
       setLoginError(result.error || "Unknown login error");
     }
@@ -155,8 +171,7 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(data as unknown as string || 'Failed to add exhibition');
       }
-
-      setExhibitions((prev) => [...prev, data]);
+      await updateExhibits();
       setNewExhibitionTitle('');
       setShowExhibitionModal(false);
     } catch (error) {
@@ -255,27 +270,27 @@ export default function Home() {
                     onClick={() => handleExhibitionClick(exhibition.id)}
                     className="border rounded p-4 cursor-pointer hover:shadow-md bg-blue-50 hover:bg-blue-100"
                   >
-                    <b className="font-bold text-lg">{exhibition.title}</b>
+                    <b className="font-bold text-lg">{exhibition.name}</b>
                     <p className="text-sm text-gray-600">
-                      {exhibition.saved_items?.length || 0} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
+                      {exhibition.saveditems?.length|| []} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
                     </p>
                   </div>
-                  {selectedExhibition === exhibition.id && exhibition.saved_items && exhibition.saved_items.length > 0 && (
+                  {selectedExhibition === exhibition.id && exhibition.saveditems && exhibition.saveditems.length > 0 && (
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-blue-500 pl-4">
-                      {exhibition.saved_items.map((item, index) => (
+                      {exhibition.saveditems.map((item, index) => (
                         <Card
                           key={`${exhibition.id}-${index}`}
                           title={item.title}
-                          description={item.description}
-                          author={item.author}
-                          provider={item.provider}
-                          source={item.source}
-                          image={item.edmPreview}
+                          description={item?.description}
+                          author={item?.author}
+                          provider={item?.provider}
+                          source={item?.source}
+                          image={item?.edmPreview}
                         />
                       ))}
                     </div>
                   )}
-                  {selectedExhibition === exhibition.id && (!exhibition.saved_items || exhibition.saved_items.length === 0) && (
+                  {selectedExhibition === exhibition.id && (!exhibition.saveditems || exhibition.saveditems.length === 0) && (
                     <div className="mt-4 p-4 bg-gray-100 rounded border-l-4 border-blue-500">
                       <p className="text-gray-600 italic">No items in this exhibition yet.</p>
                     </div>

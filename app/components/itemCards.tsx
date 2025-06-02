@@ -1,5 +1,7 @@
-import React from 'react';
-
+'use client';
+import React, { useState } from 'react';
+import { useUser } from '../user-context';
+import AddToExhibitModal from './AddToExhibitModal';
 
 interface CardProps {
   title: string;
@@ -7,43 +9,115 @@ interface CardProps {
   author?: string;
   provider?: string;
   source?: string;
-  image?: string; // URL for the image
+  image?: string;
+  showAddButton?: boolean; // Add this prop to conditionally show the button
 }
 
-const Card: React.FC<CardProps> = ({ title, description, author, provider, source, image }) => {
+interface ExhibitionItem {
+  title: string;
+  description?: string;
+  author?: string;
+  provider?: string;
+  edmPreview?: string;
+  source?: string;
+}
+
+export default function Card({ 
+  title, 
+  description, 
+  author, 
+  provider, 
+  source, 
+  image,
+  showAddButton = false 
+}: CardProps) {
+  const { isLoggedIn } = useUser();
+  const [showModal, setShowModal] = useState(false);
+
+  // Create item object to pass to modal
+  const itemData: ExhibitionItem = {
+    title,
+    description,
+    author,
+    provider,
+    source,
+    edmPreview: image
+  };
+
+  const handleAddToExhibit = () => {
+    if (!isLoggedIn) {
+      alert('Please log in to add items to exhibitions');
+      return;
+    }
+    setShowModal(true);
+  };
+
   return (
-    <div
-      className="border rounded p-4 flex flex-col cursor-pointer hover:shadow-md"
-    >
-      <div className="h-40 overflow-hidden flex items-center justify-center mb-2">
-        {image ? (
-          <img src={image} alt={title} className="max-h-full object-contain" />
-        ) : (
-          <div className="bg-gray-200 w-full h-full flex items-center justify-center">
-            No image
+    <>
+      <div className="border rounded-lg p-4 shadow-md bg-white hover:shadow-lg transition-shadow">
+        {image && (
+          <img 
+            src={image} 
+            alt={title} 
+            className="w-full h-48 object-cover rounded mb-3"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
+        )}
+        
+        <h3 className="font-bold text-lg mb-2 line-clamp-2">{title}</h3>
+        
+        {description && (
+          <p className="text-gray-600 text-sm mb-2 line-clamp-3">{description}</p>
+        )}
+        
+        {author && (
+          <p className="text-gray-500 text-xs mb-1">
+            <span className="font-medium">Author:</span> {author}
+          </p>
+        )}
+        
+        {provider && (
+          <p className="text-gray-500 text-xs mb-1">
+            <span className="font-medium">Provider:</span> {provider}
+          </p>
+        )}
+        
+        {source && (
+          <a 
+            href={source} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 text-xs underline inline-block mt-2"
+          >
+            View Source
+          </a>
+        )}
+
+        {/* Conditionally render Add to Exhibit button */}
+        {showAddButton && (
+          <div className="mt-3 pt-3 border-t">
+            <button
+              onClick={handleAddToExhibit}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded text-sm font-medium transition-colors disabled:bg-gray-400"
+              disabled={!isLoggedIn}
+            >
+              {isLoggedIn ? 'Add to Exhibit' : 'Login to Add'}
+            </button>
           </div>
         )}
       </div>
-      <h3 className="font-bold">{title || 'No title'}</h3>
-      {author && <p className="text-sm mb-2 flex-grow">{author}</p>}
-      {description && (
-        <p className="text-sm mb-2 flex-grow">
-          {description.length > 150 ? `${description.substring(0, 150)}...` : description}
-        </p>
-      )}
-      {provider && <p className="text-sm mb-2 flex-grow">{provider}</p>}
-      {source && (
-        <a
-          href={source}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 hover:underline text-sm"
-        >
-          Source
-        </a>
-      )}
-    </div>
-  );
-};
 
-export default Card;
+      {/* Add to Exhibit Modal */}
+      {showModal && (
+        <AddToExhibitModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          itemData={itemData}
+        />
+      )}
+    </>
+  );
+}
