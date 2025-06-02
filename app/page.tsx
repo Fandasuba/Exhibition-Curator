@@ -192,6 +192,31 @@ export default function Home() {
       </main>
     );
   }
+    // Purge the unwated historical artefact.
+const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise<void> => {
+  try {
+    const updatedSavedItems = exhibition.saveditems?.filter((_, i) => i !== index);
+
+    if (!updatedSavedItems) {
+      throw new Error("No saved items to update.");
+    }
+    const response = await fetch(`/api/exhibits/?exhibitId=${exhibition.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ saveditems: updatedSavedItems }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update exhibit: ${response.statusText}`);
+    }
+
+    console.log("Exhibit updated successfully.");
+    updateExhibits()
+  } catch (error) {
+    console.error("Error updating exhibit:", (error as Error).message);
+  }
+};
+
 
   return (
     <main className="p-8 max-w-4xl mx-auto">
@@ -275,20 +300,29 @@ export default function Home() {
                       {exhibition.saveditems?.length|| []} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
                     </p>
                   </div>
-                  {selectedExhibition === exhibition.id && exhibition.saveditems && exhibition.saveditems.length > 0 && (
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-blue-500 pl-4">
-                      {exhibition.saveditems.map((item, index) => (
-                        <Card
-                          key={`${exhibition.id}-${index}`}
-                          title={item.title}
-                          description={item?.description}
-                          author={item?.author}
-                          provider={item?.provider}
-                          source={item?.source}
-                          image={item?.edmPreview}
-                        />
-                      ))}
-                    </div>
+                  {selectedExhibition === exhibition.id &&
+                    exhibition.saveditems &&
+                    exhibition.saveditems.length > 0 && (
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-blue-500 pl-4">
+                        {exhibition.saveditems.map((item, index) => (
+                          <div key={`${exhibition.id}-${index}`} className="card">
+                            <Card
+                              title={item.title}
+                              description={item?.description}
+                              author={item?.author}
+                              provider={item?.provider}
+                              source={item?.source}
+                              image={item?.edmPreview}
+                            />
+                            <button
+                              onClick={() => patchSavedItem(exhibition, index)}
+                              className="mt-2 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
+                            >
+                              Update Item
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                   )}
                   {selectedExhibition === exhibition.id && (!exhibition.saveditems || exhibition.saveditems.length === 0) && (
                     <div className="mt-4 p-4 bg-gray-100 rounded border-l-4 border-blue-500">

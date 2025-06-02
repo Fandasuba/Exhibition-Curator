@@ -3,6 +3,27 @@ import { Client } from "pg";
 
 const apiUrl = process.env.NEXT_DOCKER_API_URL;
 
+export async function PATCH(req: NextRequest) {
+   const { searchParams } = new URL(req.url);
+  const id = searchParams.get("exhibitId");
+  
+  const client = new Client({
+    connectionString: apiUrl,
+  });
+  
+  try {
+    const saveditems = await req.json()
+    await client.connect();
+    const result = await client.query("UPDATE exhibitions SET savedItems = $1 WHERE id = $2",
+      [JSON.stringify(saveditems), id]
+    )
+    return NextResponse.json({message: "Successfuly updated Exhibit.", data: result.rows[0]})
+  } catch(error){
+    console.error("Error patching exhibit:", error)
+    return NextResponse.json({error: error})
+  }
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const user_id = searchParams.get("userId");
