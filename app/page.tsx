@@ -61,7 +61,7 @@ export default function Home() {
   const [newExhibitionTitle, setNewExhibitionTitle] = useState<string>('');
   const [exhibitionLoading, setExhibitionLoading] = useState<boolean>(false);
   const [exhibitionMessage, setExhibitionMessage] = useState<string>('');
-
+  const [update, setExhibitUpdate] = useState<boolean>(false);
   const updateExhibits = async () => {
     if (!isLoggedIn || !user) return;
 
@@ -194,6 +194,7 @@ export default function Home() {
   }
     // Purge the unwated historical artefact.
 const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise<void> => {
+  setExhibitUpdate(true)
   try {
     const updatedSavedItems = exhibition.saveditems?.filter((_, i) => i !== index);
 
@@ -212,11 +213,31 @@ const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise
 
     console.log("Exhibit updated successfully.");
     updateExhibits()
+    setExhibitUpdate(false)
   } catch (error) {
     console.error("Error updating exhibit:", (error as Error).message);
   }
 };
 
+// purge the unwanted exhibit.
+const deleteExhibit = async (id: string) => {
+  setExhibitUpdate(true)
+  try {
+    const response = await fetch (`/api/exhibits?exhibitId=${id}`, {
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"},
+    })
+     if (!response.ok) {
+      throw new Error(`Failed to update exhibit: ${response.statusText}`);
+    }
+    console.log("Exhibit deleted successfully.");
+    updateExhibits()
+    setExhibitUpdate(false)
+    
+  } catch (error){
+    console.error("Error deleting Exhibit:", error)
+  }
+}
 
   return (
     <main className="p-8 max-w-4xl mx-auto">
@@ -299,6 +320,13 @@ const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise
                     <p className="text-sm text-gray-600">
                       {exhibition.saveditems?.length|| []} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
                     </p>
+                    <button
+                        onClick={() => deleteExhibit(exhibition.id)}
+                          className="mt-2 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
+                    >
+                      Delete entry
+                    </button>
+                      {update && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>}
                   </div>
                   {selectedExhibition === exhibition.id &&
                     exhibition.saveditems &&
@@ -317,9 +345,11 @@ const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise
                             <button
                               onClick={() => patchSavedItem(exhibition, index)}
                               className="mt-2 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
+                            
                             >
-                              Update Item
+                              Delete entry
                             </button>
+                            {update && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>}
                           </div>
                         ))}
                       </div>

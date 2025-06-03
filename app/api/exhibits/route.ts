@@ -3,24 +3,51 @@ import { Client } from "pg";
 
 const apiUrl = process.env.NEXT_DOCKER_API_URL;
 
+export async function DELETE(req:NextRequest){
+  const {searchParams} = new URL(req.url)
+  const id = searchParams.get("exhibitId")
+
+  const client = new Client({
+    connectionString: apiUrl
+  })
+
+  try {
+    await client.connect()
+    const results = await client.query("DELETE FROM exhibitions WHERE id = $1", 
+      [id]
+    )
+
+    return NextResponse.json({message: "Successfully deleted your exhibit.", data: results.rows[0]})
+  } catch (error){
+    console.error("Error in delete exhibit route:", error)
+    NextResponse.json({error: `Error deleting exhibit - ${error}`})
+  } finally {
+    await client.end();
+  }
+}
+
 export async function PATCH(req: NextRequest) {
    const { searchParams } = new URL(req.url);
   const id = searchParams.get("exhibitId");
-  
+ 
   const client = new Client({
     connectionString: apiUrl,
   });
-  
+ 
   try {
-    const saveditems = await req.json()
+    const requestBody = await req.json();
+    const { saveditems } = requestBody;
+    
     await client.connect();
     const result = await client.query("UPDATE exhibitions SET savedItems = $1 WHERE id = $2",
       [JSON.stringify(saveditems), id]
     )
-    return NextResponse.json({message: "Successfuly updated Exhibit.", data: result.rows[0]})
+    return NextResponse.json({message: "Successfully updated Exhibit.", data: result.rows[0]})
   } catch(error){
     console.error("Error patching exhibit:", error)
     return NextResponse.json({error: error})
+  } finally {
+    await client.end();
   }
 }
 
