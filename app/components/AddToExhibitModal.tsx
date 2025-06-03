@@ -15,7 +15,7 @@ interface Exhibition {
   id: string;
   title: string;
   name: string;
-  savedItems?: ExhibitionItem[];
+  saveditems?: ExhibitionItem[];
 }
 
 interface AddToExhibitModalProps {
@@ -85,7 +85,7 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
         throw new Error(result.error || 'Failed to add item to exhibition');
       }
 
-      setMessage('Item added to exhibition successfully!');
+      setMessage('Item added to exhibition successfully! The modal will now close shortly.');
       setMessageType('success');
       
       // Close modal after a short delay
@@ -93,7 +93,7 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
         onClose();
         setMessage('');
         setSelectedExhibition('');
-      }, 1500);
+      }, 1000);
 
     } catch (error) {
       console.error('Error adding item to exhibition:', error);
@@ -137,7 +137,7 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
               <option value="">Choose an exhibition...</option>
               {exhibitions.map((exhibition) => (
                 <option key={exhibition.id} value={exhibition.id}>
-                  {exhibition.name || exhibition.title} ({exhibition.savedItems?.length || 0} items)
+                  {exhibition.name || exhibition.title} ({exhibition.saveditems?.length || 0} items)
                 </option>
               ))}
             </select>
