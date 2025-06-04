@@ -52,56 +52,61 @@ export default function Card({
     setShowModal(true);
   };
 
-  return (
+return (
     <>
-      <div className="border rounded-lg p-4 shadow-md bg-white hover:shadow-lg transition-shadow">
+      <div className="border-2 border-gray-600 rounded bg-gray-800 p-4 shadow-lg hover:shadow-xl hover:border-blue-500 transition-all duration-300 group">
         {image && (
-          <img 
-            src={image} 
-            alt={title} 
-            className="w-full h-48 object-cover rounded mb-3"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
-          />
+          <div className="relative overflow-hidden rounded mb-3 border border-gray-700">
+            <img
+              src={image}
+              alt={title}
+              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
+          </div>
         )}
-        
-        <h3 className="font-bold text-lg mb-2 line-clamp-2">{title}</h3>
-        
+       
+        <h3 className="font-bold text-lg mb-2 line-clamp-2 text-blue-400 group-hover:text-blue-300 transition-colors">
+          {title}
+        </h3>
+       
         {description && (
-          <p className="text-gray-600 text-sm mb-2 line-clamp-3">{description}</p>
+          <p className="text-gray-300 text-sm mb-2 line-clamp-3">
+            {description}
+          </p>
         )}
-        
+       
         {author && (
-          <p className="text-gray-500 text-xs mb-1">
-            <span className="font-medium">Author:</span> {author}
+          <p className="text-gray-400 text-xs mb-1">
+            <span className="font-medium text-blue-400">Author:</span> {author}
           </p>
         )}
-        
+       
         {provider && (
-          <p className="text-gray-500 text-xs mb-1">
-            <span className="font-medium">Provider:</span> {provider}
+          <p className="text-gray-400 text-xs mb-1">
+            <span className="font-medium text-blue-400">Provider:</span> {provider}
           </p>
         )}
-        
+       
         {source && (
-          <a 
-            href={source} 
-            target="_blank" 
+          <a
+            href={source}
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 text-xs underline inline-block mt-2"
+            className="text-blue-400 hover:text-blue-300 text-xs underline inline-block mt-2 transition-colors"
           >
             View Source
           </a>
         )}
-
-        {/* Conditionally render Add to Exhibit button */}
+        
         {showAddButton && (
-          <div className="mt-3 pt-3 border-t">
+          <div className="mt-3 pt-3 border-t border-gray-600">
             <button
               onClick={handleAddToExhibit}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded text-sm font-medium transition-colors disabled:bg-gray-400"
+              className="w-full bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded text-sm font-medium transition-all duration-200 disabled:bg-gray-600 disabled:text-gray-400 border border-green-500 hover:border-green-400 disabled:border-gray-500"
               disabled={!isLoggedIn}
             >
               {isLoggedIn ? 'Add to Exhibit' : 'Login to Add'}
@@ -109,8 +114,7 @@ export default function Card({
           </div>
         )}
       </div>
-
-      {/* Add to Exhibit Modal */}
+      
       {showModal && (
         <AddToExhibitModal
           isOpen={showModal}

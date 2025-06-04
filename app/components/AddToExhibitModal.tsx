@@ -93,7 +93,7 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
         onClose();
         setMessage('');
         setSelectedExhibition('');
-      }, 1000);
+      }, 1750);
 
     } catch (error) {
       console.error('Error adding item to exhibition:', error);
@@ -113,49 +113,49 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4 shadow-xl">
-        <h2 className="text-xl font-bold mb-4">Add to Exhibition</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div className="bg-gray-800 p-6 rounded border-2 border-gray-600 max-w-md w-full mx-4 shadow-2xl">
+        <h2 className="text-xl font-bold mb-4 text-blue-400 border-b border-gray-600 pb-2">Add to Exhibition</h2>
         
         {/* Item preview */}
-        <div className="mb-4 p-3 bg-gray-50 rounded">
-          <h3 className="font-medium text-sm mb-1">Adding item:</h3>
-          <p className="text-sm text-gray-700 truncate">{itemData.title}</p>
+        <div className="mb-4 p-3 bg-gray-700 rounded border border-gray-600">
+          <h3 className="font-medium text-sm mb-1 text-blue-400">Adding item:</h3>
+          <p className="text-sm text-gray-300 truncate">{itemData.title}</p>
         </div>
 
         {/* Exhibition selection */}
         {exhibitions.length > 0 ? (
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Select Exhibition:
             </label>
             <select
               value={selectedExhibition}
               onChange={(e) => setSelectedExhibition(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 border border-gray-600 rounded bg-gray-700 text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
             >
               <option value="">Choose an exhibition...</option>
               {exhibitions.map((exhibition) => (
-                <option key={exhibition.id} value={exhibition.id}>
+                <option key={exhibition.id} value={exhibition.id} className="bg-gray-700">
                   {exhibition.name || exhibition.title} ({exhibition.saveditems?.length || 0} items)
                 </option>
               ))}
             </select>
           </div>
         ) : (
-          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-            <p className="text-sm text-yellow-800">
-              You don&apo;t have any exhibitions yet. Create one first from the homepage.
+          <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded">
+            <p className="text-sm text-yellow-300">
+              You don&apos;t have any exhibitions yet. Create one first from the homepage.
             </p>
           </div>
         )}
 
         {/* Message display */}
         {message && (
-          <div className={`mb-4 p-3 rounded ${
+          <div className={`mb-4 p-3 rounded border ${
             messageType === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-800' 
-              : 'bg-red-50 border border-red-200 text-red-800'
+              ? 'bg-green-900 border-green-600 text-green-300' 
+              : 'bg-red-900 border-red-600 text-red-300'
           }`}>
             <p className="text-sm">{message}</p>
           </div>
@@ -165,14 +165,14 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
         <div className="flex justify-end space-x-3">
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium"
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded font-medium border border-gray-500 hover:border-gray-400 transition-colors"
             disabled={loading}
           >
             Cancel
           </button>
           <button
             onClick={handleAddToExhibition}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium disabled:bg-gray-400"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium disabled:bg-gray-600 disabled:text-gray-400 border border-blue-500 hover:border-blue-400 disabled:border-gray-500 transition-colors"
             disabled={loading || !selectedExhibition || exhibitions.length === 0}
           >
             {loading ? 'Adding...' : 'Add to Exhibition'}

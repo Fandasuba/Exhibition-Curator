@@ -62,6 +62,7 @@ export default function Home() {
   const [exhibitionLoading, setExhibitionLoading] = useState<boolean>(false);
   const [exhibitionMessage, setExhibitionMessage] = useState<string>('');
   const [update, setExhibitUpdate] = useState<boolean>(false);
+  
   const updateExhibits = async () => {
     if (!isLoggedIn || !user) return;
 
@@ -192,188 +193,224 @@ export default function Home() {
       </main>
     );
   }
-    // Purge the unwated historical artefact.
-const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise<void> => {
-  setExhibitUpdate(true)
-  try {
-    const updatedSavedItems = exhibition.saveditems?.filter((_, i) => i !== index);
-
-    if (!updatedSavedItems) {
-      throw new Error("No saved items to update.");
-    }
-    const response = await fetch(`/api/exhibits/?exhibitId=${exhibition.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ saveditems: updatedSavedItems }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to update exhibit: ${response.statusText}`);
-    }
-
-    console.log("Exhibit updated successfully.");
-    updateExhibits()
-    setExhibitUpdate(false)
-  } catch (error) {
-    console.error("Error updating exhibit:", (error as Error).message);
-  }
-};
-
-// purge the unwanted exhibit.
-const deleteExhibit = async (id: string) => {
-  setExhibitUpdate(true)
-  try {
-    const response = await fetch (`/api/exhibits?exhibitId=${id}`, {
-      method: "DELETE",
-      headers: {"Content-Type": "application/json"},
-    })
-     if (!response.ok) {
-      throw new Error(`Failed to update exhibit: ${response.statusText}`);
-    }
-    console.log("Exhibit deleted successfully.");
-    updateExhibits()
-    setExhibitUpdate(false)
     
-  } catch (error){
-    console.error("Error deleting Exhibit:", error)
+  // Purge the unwated historical artefact.
+  const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise<void> => {
+    setExhibitUpdate(true)
+    try {
+      const updatedSavedItems = exhibition.saveditems?.filter((_, i) => i !== index);
+
+      if (!updatedSavedItems) {
+        throw new Error("No saved items to update.");
+      }
+      const response = await fetch(`/api/exhibits/?exhibitId=${exhibition.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saveditems: updatedSavedItems }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update exhibit: ${response.statusText}`);
+      }
+
+      console.log("Exhibit updated successfully.");
+      updateExhibits()
+      setExhibitUpdate(false)
+    } catch (error) {
+      console.error("Error updating exhibit:", (error as Error).message);
+    }
+  };
+
+  // purge the unwanted exhibit.
+  const deleteExhibit = async (id: string) => {
+    setExhibitUpdate(true)
+    try {
+      const response = await fetch (`/api/exhibits?exhibitId=${id}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+      })
+       if (!response.ok) {
+        throw new Error(`Failed to update exhibit: ${response.statusText}`);
+      }
+      console.log("Exhibit deleted successfully.");
+      updateExhibits()
+      setExhibitUpdate(false)
+      
+    } catch (error){
+      console.error("Error deleting Exhibit:", error)
+    }
   }
-}
 
   return (
-    <main className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl mb-6">Welcome to Exhibition Curator</h1>
+    <main className="p-8 max-w-6xl mx-auto bg-gray-900 min-h-screen">
+      <h1 className="text-3xl mb-6 text-blue-400 font-bold drop-shadow-sm">Welcome to Exhibition Curator</h1>
 
+      {/* User Welcome Section with Logout */}
       {isLoggedIn && (
-        <div className="mb-6 p-4 bg-green-100 rounded-lg">
-          <p className="text-green-800">
-            Welcome back, <strong>{user?.username}</strong>!
+        <div className="mb-6 p-4 bg-green-900 border border-green-600 rounded-lg flex justify-between items-center">
+          <p className="text-green-300">
+            Welcome back, <strong className="text-green-200">{user?.username}</strong>!
           </p>
-        </div>
-      )}
-
-      {/* Auth section */}
-      <section className="mb-6">
-        {!isLoggedIn ? (
-          <>
-            <h2 className="text-xl mb-2">Authentication</h2>
-            <div className="space-x-2">
-              <button
-                onClick={() => setShowLoginModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-              >
-                Create Account
-              </button>
-            </div>
-          </>
-        ) : (
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
           >
             Logout
           </button>
-        )}
-      </section>
+        </div>
+      )}
+
+      {/* Auth section - Only show when not logged in */}
+      {!isLoggedIn && (
+        <section className="mb-6 p-4 bg-gray-800 border border-gray-600 rounded-lg">
+          <h2 className="text-xl mb-4 text-blue-400 font-semibold">Authentication</h2>
+          <div className="space-x-3">
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-500 hover:border-blue-400 transition-all duration-200 font-medium"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-6 py-2 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded border border-gray-500 hover:border-gray-400 transition-all duration-200 font-medium"
+            >
+              Create Account
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Navigate to Find Artefacts page */}
-      <section className="mb-6">
+      <section className="mb-8">
         <Link href="/artefacts">
-          <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            Find Artefacts
+          <button className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded border border-green-500 hover:border-green-400 transition-all duration-200 font-medium text-lg shadow-md">
+            🔍 Find Artefacts
           </button>
         </Link>
       </section>
 
       {/* Exhibitions Section - Only show when logged in */}
       {isLoggedIn && (
-        <section className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Your Exhibitions</h2>
-            <button
-              onClick={() => setShowExhibitionModal(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Create Exhibition
-            </button>
-          </div>
-          
-          {exhibitions.length === 0 ? (
-            <div className="p-6 bg-gray-100 rounded-lg text-center">
-              <p className="text-gray-600">You haven&apos;t created any exhibitions yet.</p>
-              <p className="text-sm text-gray-500 mt-2">Click &quot;Create Exhibition&quot; to get started!</p>
+        <>
+          {/* Exhibition List Section */}
+          <section className="mb-8 p-6 bg-gray-800 border-2 border-gray-600 rounded-lg">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-600">
+              <h2 className="text-2xl font-bold text-blue-400">Your Exhibitions</h2>
+              <button
+                onClick={() => setShowExhibitionModal(true)}
+                className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded border border-blue-500 hover:border-blue-400 transition-all duration-200 font-medium"
+              >
+                ✨ Create Exhibition
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {exhibitions.map((exhibition) => (
-                <div key={exhibition.id}>
+            
+            {exhibitions.length === 0 ? (
+              <div className="p-8 bg-gray-700 border border-gray-600 rounded-lg text-center">
+                <p className="text-gray-300 text-lg">You haven&apos;t created any exhibitions yet.</p>
+                <p className="text-sm text-gray-400 mt-2">Click &quot;Create Exhibition&quot; to get started!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {exhibitions.map((exhibition) => (
                   <div 
+                    key={exhibition.id}
                     onClick={() => handleExhibitionClick(exhibition.id)}
-                    className="border rounded p-4 cursor-pointer hover:shadow-md bg-blue-50 hover:bg-blue-100"
+                    className="border-2 border-gray-600 rounded-lg p-4 cursor-pointer hover:shadow-lg bg-gray-700 hover:bg-gray-650 hover:border-blue-500 transition-all duration-300 group flex justify-between items-center"
                   >
-                    <b className="font-bold text-lg">{exhibition.name}</b>
-                    <p className="text-sm text-gray-600">
-                      {exhibition.saveditems?.length|| []} items • Click to {selectedExhibition === exhibition.id ? 'hide' : 'view'}
-                    </p>
-                    <button
-                        onClick={() => deleteExhibit(exhibition.id)}
-                          className="mt-2 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
-                    >
-                      Delete entry
-                    </button>
-                      {update && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>}
-                  </div>
-                  {selectedExhibition === exhibition.id &&
-                    exhibition.saveditems &&
-                    exhibition.saveditems.length > 0 && (
-                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 border-l-4 border-blue-500 pl-4">
-                        {exhibition.saveditems.map((item, index) => (
-                          <div key={`${exhibition.id}-${index}`} className="card">
-                            <Card
-                              title={item.title}
-                              description={item?.description}
-                              author={item?.author}
-                              provider={item?.provider}
-                              source={item?.source}
-                              image={item?.edmPreview}
-                            />
-                            <button
-                              onClick={() => patchSavedItem(exhibition, index)}
-                              className="mt-2 px-2 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700"
-                            
-                            >
-                              Delete entry
-                            </button>
-                            {update && <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>}
-                          </div>
-                        ))}
-                      </div>
-                  )}
-                  {selectedExhibition === exhibition.id && (!exhibition.saveditems || exhibition.saveditems.length === 0) && (
-                    <div className="mt-4 p-4 bg-gray-100 rounded border-l-4 border-blue-500">
-                      <p className="text-gray-600 italic">No items in this exhibition yet.</p>
+                    <div>
+                      <h3 className="font-bold text-lg text-blue-400 group-hover:text-blue-300 transition-colors">
+                        {exhibition.name}
+                      </h3>
+                      <p className="text-sm text-gray-400 mt-1">
+                        <span className="text-blue-400 font-medium">{exhibition.saveditems?.length || 0}</span> items • 
+                        Click to <span className="text-blue-400">{selectedExhibition === exhibition.id ? 'hide' : 'view'}</span>
+                      </p>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    <div className="flex items-center space-x-3">
+                      {update && (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteExhibit(exhibition.id);
+                        }}
+                        className="px-3 py-1 text-sm text-white bg-red-600 hover:bg-red-500 rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Exhibition Items Display Section - Conditionally rendered */}
+          {selectedExhibition && (
+            <section className="mb-8 p-6 bg-gray-750 border-2 border-blue-500 rounded-lg">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-blue-400 mb-2">
+                  {exhibitions.find(ex => ex.id === selectedExhibition)?.name}
+                </h3>
+                <p className="text-gray-400">Exhibition Items</p>
+              </div>
+              
+              {(() => {
+                const exhibition = exhibitions.find(ex => ex.id === selectedExhibition);
+                if (!exhibition?.saveditems || exhibition.saveditems.length === 0) {
+                  return (
+                    <div className="p-8 bg-gray-700 border border-gray-600 rounded-lg text-center">
+                      <p className="text-gray-400 italic">No items in this exhibition yet.</p>
+                      <p className="text-sm text-gray-500 mt-2">Add some artefacts to get started!</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {exhibition.saveditems.map((item, index) => (
+                      <div key={`${exhibition.id}-${index}`} className="relative">
+                        <div className="w-full max-w-sm mx-auto">
+                          <Card
+                            title={item.title}
+                            description={item?.description}
+                            author={item?.author}
+                            provider={item?.provider}
+                            source={item?.source}
+                            image={item?.edmPreview}
+                          />
+                        </div>
+                        <button
+                          onClick={() => patchSavedItem(exhibition, index)}
+                          className="mt-3 w-full px-3 py-2 text-sm text-white bg-red-600 hover:bg-red-500 rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
+                        >
+                          🗑️ Remove Item
+                        </button>
+                        {update && (
+                          <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center rounded">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </section>
           )}
-        </section>
+        </>
       )}
 
       {/* Login Modal */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg max-w-sm w-full shadow-lg">
-            <h3 className="text-2xl font-bold mb-4 text-gray-800">Login</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-gray-600">
+            <h3 className="text-2xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">Login</h3>
 
             {loginError && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              <div className="mb-4 p-3 bg-red-900 border border-red-600 text-red-300 rounded">
                 {loginError}
               </div>
             )}
@@ -384,7 +421,7 @@ const deleteExhibit = async (id: string) => {
               placeholder="Username"
               value={loginFormData.username}
               onChange={handleLoginChange}
-              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+              className="border border-gray-600 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
             />
             <input
               type="password"
@@ -392,7 +429,7 @@ const deleteExhibit = async (id: string) => {
               placeholder="Password"
               value={loginFormData.password}
               onChange={handleLoginChange}
-              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+              className="border border-gray-600 rounded p-3 mb-6 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
             />
             <div className="flex justify-end space-x-3">
               <button
@@ -401,13 +438,13 @@ const deleteExhibit = async (id: string) => {
                   setLoginError("");
                   setLoginFormData({ username: "", password: "" });
                 }}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium"
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded border border-gray-500 hover:border-gray-400 font-medium transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogin}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-500 hover:border-blue-400 font-medium transition-all duration-200"
               >
                 Login
               </button>
@@ -418,9 +455,9 @@ const deleteExhibit = async (id: string) => {
 
       {/* Create Account Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg max-w-sm w-full shadow-lg">
-            <h3 className="text-2xl font-bold mb-4 text-gray-800">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-gray-600">
+            <h3 className="text-2xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">
               Create Account
             </h3>
             <input
@@ -429,7 +466,7 @@ const deleteExhibit = async (id: string) => {
               placeholder="Username"
               value={createFormData.username}
               onChange={handleCreateChange}
-              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+              className="border border-gray-600 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
             />
             <input
               type="email"
@@ -437,7 +474,7 @@ const deleteExhibit = async (id: string) => {
               placeholder="Email"
               value={createFormData.email}
               onChange={handleCreateChange}
-              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+              className="border border-gray-600 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
             />
             <input
               type="password"
@@ -445,7 +482,7 @@ const deleteExhibit = async (id: string) => {
               placeholder="Password"
               value={createFormData.password}
               onChange={handleCreateChange}
-              className="border border-gray-300 rounded p-3 mb-4 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+              className="border border-gray-600 rounded p-3 mb-6 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
             />
             <div className="flex justify-end space-x-3">
               <button
@@ -453,13 +490,13 @@ const deleteExhibit = async (id: string) => {
                   setShowCreateModal(false);
                   setCreateFormData({ username: "", email: "", password: "" });
                 }}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded font-medium"
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded border border-gray-500 hover:border-gray-400 font-medium transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateAccount}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-500 hover:border-blue-400 font-medium transition-all duration-200"
               >
                 Submit
               </button>
@@ -470,32 +507,36 @@ const deleteExhibit = async (id: string) => {
 
       {/* Exhibition Creation Modal */}
       {showExhibitionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">Create New Exhibition</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-2xl max-w-sm w-full border-2 border-gray-600">
+            <h2 className="text-xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">Create New Exhibition</h2>
             <input
               type="text"
               value={newExhibitionTitle}
               onChange={(e) => setNewExhibitionTitle(e.target.value)}
               placeholder="Enter exhibition title"
-              className="border p-2 w-full rounded mb-4"
+              className="border border-gray-600 p-3 w-full rounded mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
             />
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowExhibitionModal(false)}
-                className="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded border border-gray-500 hover:border-gray-400 font-medium transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddExhibition}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-500 hover:border-blue-400 font-medium transition-all duration-200"
                 disabled={exhibitionLoading}
               >
-                {exhibitionLoading ? 'Creating...' : 'Create'}
+                {exhibitionLoading ? 'Creating...' : '✨ Create'}
               </button>
             </div>
-            {exhibitionMessage && <p className="text-red-500 mt-2">{exhibitionMessage}</p>}
+            {exhibitionMessage && (
+              <p className="text-red-300 mt-3 p-2 bg-red-900 border border-red-600 rounded text-sm">
+                {exhibitionMessage}
+              </p>
+            )}
           </div>
         </div>
       )}

@@ -36,25 +36,23 @@ export default function Pagination({
     
     return pages;
   };
-  return (
-    // page number div
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 mb-4">
+return (
+    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 mb-4 p-4 bg-gray-800 rounded border border-gray-600">
       <div className="flex items-center mb-2 sm:mb-0">
-        <span className="text-sm text-gray-700">
-          Showing page {currentPage} of {totalPages}
+        <span className="text-sm text-gray-300">
+          Showing page <span className="text-blue-400 font-medium">{currentPage}</span> of <span className="text-blue-400 font-medium">{totalPages}</span>
         </span>
-        
-        {/* change the pagination rendering*/}
+       
         {onPageSizeChange && (
           <div className="ml-4">
-            <label className="text-sm text-gray-700 mr-2">Items per page:</label>
+            <label className="text-sm text-gray-300 mr-2">Items per page:</label>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="border rounded py-1 px-2 text-sm"
+              className="border border-gray-600 rounded py-1 px-2 text-sm bg-gray-700 text-gray-300 hover:border-blue-500 focus:border-blue-400 focus:outline-none transition-colors"
             >
               {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
+                <option key={size} value={size} className="bg-gray-700">
                   {size}
                 </option>
               ))}
@@ -62,49 +60,48 @@ export default function Pagination({
           </div>
         )}
       </div>
-      
-      {/* page changer */}
+     
       <div className="flex items-center space-x-1">
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="px-3 py-1 rounded border bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &laquo;
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-3 py-1 rounded border bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &lsaquo;
         </button>
-        
+       
         {getPageNumbers().map((page) => (
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`px-3 py-1 rounded border ${
+            className={`px-3 py-1 rounded border transition-all duration-200 ${
               currentPage === page
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 text-white border-blue-500 shadow-md'
+                : 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400'
             }`}
           >
             {page}
           </button>
         ))}
-        
+       
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-3 py-1 rounded border bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &rsaquo;
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="px-3 py-1 rounded border bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &raquo;
         </button>

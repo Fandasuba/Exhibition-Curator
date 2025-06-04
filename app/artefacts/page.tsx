@@ -87,86 +87,146 @@ useEffect(() => {
   }, [apiSource]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4"> Explore Medieval Europe</h1>
-      <div className="flex flex-col md:flex-row gap-2 mb-4">
-        <select
-          value={apiSource}
-          onChange={(e) => setApiSource(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="europeana">Europeana API</option>
-          <option value="digital-bodleian-oxford">Oxford University&apos;s Digital Manuscripts</option>
-          {/* <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
-          <option value="natmus">National Museum Denmark</option>
-          <option value="finna">National Finnish Museum</option> */}
-          {/* <option value="digitaltmuseum">DigitaltMuseum API</option>
-          <option value="soch">Swedish Open Cultural Heritage</option> */}
-        </select>
-        <div className="flex-1 flex gap-2">
-          <input
-            type="text"
-            placeholder={setIdea}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="p-2 border rounded flex-1"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSearch();
-            }}
-          />
-          <button 
-            onClick={() => handleSearch()} 
-            className="p-2 bg-blue-500 text-white rounded"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Searching...' : 'Search'}
-          </button>
+    <main className="p-8 max-w-6xl mx-auto bg-gray-900 min-h-screen">
+      <h1 className="text-3xl mb-6 text-blue-400 font-bold drop-shadow-sm">🏛️ Explore Medieval Europe</h1>
+      
+      {/* Search Controls Section */}
+      <section className="mb-8 p-6 bg-gray-800 border-2 border-gray-600 rounded-lg">
+        <h2 className="text-xl mb-4 text-blue-400 font-semibold">Search Archives</h2>
+        <div className="flex flex-col lg:flex-row gap-4 mb-4">
+          {/* API Source Selector */}
+          <div className="lg:w-80">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Archive Source
+            </label>
+            <select
+              value={apiSource}
+              onChange={(e) => setApiSource(e.target.value)}
+              className="w-full p-3 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 transition-colors"
+            >
+              <option value="europeana">Europeana API</option>
+              <option value="digital-bodleian-oxford">Oxford University&apos;s Digital Manuscripts</option>
+              {/* <option value="fitzwilliam">FitzWilliam, Cambridge University</option>
+              <option value="natmus">National Museum Denmark</option>
+              <option value="finna">National Finnish Museum</option> */}
+              {/* <option value="digitaltmuseum">DigitaltMuseum API</option>
+              <option value="soch">Swedish Open Cultural Heritage</option> */}
+            </select>
+          </div>
+          
+          {/* Search Input and Button */}
+          <div className="flex-1 flex gap-3">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Search Terms
+              </label>
+              <input
+                type="text"
+                placeholder={setIdea}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full p-3 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-gray-300 placeholder-gray-400 transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+              />
+            </div>
+            <div className="flex flex-col justify-end">
+              <button 
+                onClick={() => handleSearch()} 
+                className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded border border-green-500 hover:border-green-400 transition-all duration-200 font-medium h-fit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Searching...
+                  </div>
+                ) : (
+                  '🔍 Search'
+                )}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {isLoading ? (
-        <div className="flex justify-center my-8">
-          {/* Simple spinner found online. Change the spinner to something with better house style later on. */}
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div> 
-        </div>
-      ) : results ? (
-        <>
-          {results.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {results.map((item: Item, index: number) => (
-                  <Card
-                    key={index}
-                    title={item.title}
-                    description={item.description}
-                    author={item.author}
-                    provider={item.provider}
-                    source={item.source}
-                    image={item.edmPreview}
-                    showAddButton={true} // Show the add button on the artifacts page
-                  />
-                ))}
+      {/* Results Section */}
+      <section className="mb-8">
+        {isLoading ? (
+          <div className="flex justify-center items-center py-16 bg-gray-800 border border-gray-600 rounded-lg">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+              <p className="text-gray-300 text-lg">Searching archives...</p>
+              <p className="text-gray-400 text-sm mt-1">This may take a moment</p>
+            </div>
+          </div>
+        ) : results ? (
+          <>
+            {results.length > 0 ? (
+              <>
+                {/* Results Header */}
+                <div className="mb-6 p-4 bg-gray-800 border border-gray-600 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-blue-400">
+                      Search Results
+                    </h2>
+                    <p className="text-gray-400">
+                      Found <span className="text-blue-400 font-medium">{pagination.totalItems}</span> items
+                    </p>
+                  </div>
+                </div>
+
+                {/* Results Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                  {results.map((item: Item, index: number) => (
+                    <div key={index} className="w-full max-w-sm mx-auto">
+                      <Card
+                        title={item.title}
+                        description={item.description}
+                        author={item.author}
+                        provider={item.provider}
+                        source={item.source}
+                        image={item.edmPreview}
+                        showAddButton={true} // Show the add button on the artifacts page
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Pagination component */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex justify-center">
+                    <Pagination
+                      currentPage={pagination.currentPage}
+                      totalPages={pagination.totalPages}
+                      onPageChange={handlePageChange}
+                      pageSize={pagination.limit}
+                      onPageSizeChange={handlePageSizeChange}
+                      pageSizeOptions={[10, 20, 50]}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-12 bg-gray-800 border border-gray-600 rounded-lg text-center">
+                <div className="text-6xl mb-4">🔍</div>
+                <p className="text-gray-300 text-xl mb-2">No results found</p>
+                <p className="text-gray-400">Try adjusting your search terms or selecting a different archive source.</p>
               </div>
-              
-              {/* Pagination component */}
-              {pagination.totalPages > 1 && (
-                <Pagination
-                  currentPage={pagination.currentPage}
-                  totalPages={pagination.totalPages}
-                  onPageChange={handlePageChange}
-                  pageSize={pagination.limit}
-                  onPageSizeChange={handlePageSizeChange}
-                  pageSizeOptions={[10, 20, 50]}
-                />
-              )}
-            </>
-          ) : (
-            <p className="text-center py-8">No results found. Try a different search term.</p>
-          )}
-        </>
-      ) : (
-        <p className="text-center py-8">Enter a search term to begin.</p>
-      )}
-    </div>
+            )}
+          </>
+        ) : (
+          <div className="p-12 bg-gray-800 border border-gray-600 rounded-lg text-center">
+            <div className="text-6xl mb-4">🏛️</div>
+            <p className="text-gray-300 text-xl mb-2">Ready to explore historical archives</p>
+            <p className="text-gray-400 mb-4">Enter a search term above to discover medieval artifacts and manuscripts.</p>
+            <div className="inline-flex items-center px-4 py-2 bg-blue-900 border border-blue-600 rounded-lg text-blue-300 text-sm">
+              💡 Try searching for: &quot;{setIdea}&quot;
+            </div>
+          </div>
+        )}
+      </section>
+    </main>
   );
 }
