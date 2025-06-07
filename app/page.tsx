@@ -1,9 +1,9 @@
 "use client";
-// Need to fix the get request on this page to refresh the user so they can see their curated exhibits actual refresh when they add stuff.
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useUser } from "./user-context";
 import Card from "./components/itemCards";
+import Pagination from "./components/pagination";
 
 interface CreateFormData {
   username: string;
@@ -22,52 +22,170 @@ interface LoginResult {
 }
 
 export interface SavedItem {
-    edmPreview: string;
-    title: string; 
-    description: string;
-    source: string;
-    provider: string;
-    author: string;
+  edmPreview: string;
+  title: string; 
+  description: string;
+  source: string;
+  provider: string;
+  author: string;
 }
 
 export interface ExhibitionItem {
-    id: string,
-    name: string,
-    saveditems?: SavedItem[]
+  id: string,
+  name: string,
+  saveditems?: SavedItem[]
 }
+
+interface PaginationState {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  pageSize: number;
+}
+
+type SortOption = 'name-asc' | 'name-desc' | 'date-asc' | 'date-desc' | 'items-asc' | 'items-desc';
+type ItemSortOption = 'title-asc' | 'title-desc' | 'author-asc' | 'author-desc' | 'provider-asc' | 'provider-desc';
 
 export default function Home() {
   const { user, login, logout, isLoggedIn, loading } = useUser();
+  
+  // Auth states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-
   const [createFormData, setCreateFormData] = useState<CreateFormData>({
     username: "",
     email: "",
     password: "",
   });
-
   const [loginFormData, setLoginFormData] = useState<LoginFormData>({
     username: "",
     password: "",
   });
-
   const [loginError, setLoginError] = useState<string>("");
 
-  // Exhibition states
+  // Exhibition list states
   const [exhibitions, setExhibitions] = useState<ExhibitionItem[]>([]);
-  const [selectedExhibition, setSelectedExhibition] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<PaginationState>({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    pageSize: 10,
+  });
+  const [exhibitionSort, setExhibitionSort] = useState<SortOption>('date-desc');
+
+  // Exhibition modal states
   const [showExhibitionModal, setShowExhibitionModal] = useState<boolean>(false);
   const [newExhibitionTitle, setNewExhibitionTitle] = useState<string>('');
   const [exhibitionLoading, setExhibitionLoading] = useState<boolean>(false);
   const [exhibitionMessage, setExhibitionMessage] = useState<string>('');
-  const [update, setExhibitUpdate] = useState<boolean>(false);
-  
-  const updateExhibits = async () => {
-    if (!isLoggedIn || !user) return;
 
+  // Exhibition items states
+  const [selectedExhibition, setSelectedExhibition] = useState<string | null>(null);
+  const [exhibitionItems, setExhibitionItems] = useState<{[key: string]: SavedItem[]}>({});
+  const [itemsPagination, setItemsPagination] = useState<{[key: string]: PaginationState}>({});
+  const [itemsSort, setItemsSort] = useState<{[key: string]: ItemSortOption}>({});
+  
+  // Loading states
+  const [update, setExhibitUpdate] = useState<boolean>(false);
+  const [itemsLoading, setItemsLoading] = useState<{[key: string]: boolean}>({});
+  const [exhibitionsLoading, setExhibitionsLoading] = useState<boolean>(false);
+
+  // Sort option labels
+  const exhibitionSortOptions = [
+    { value: 'date-desc', label: 'Newest First' },
+    { value: 'date-asc', label: 'Oldest First' },
+    { value: 'name-asc', label: 'Name A-Z' },
+    { value: 'name-desc', label: 'Name Z-A' },
+    { value: 'items-desc', label: 'Most Items' },
+    { value: 'items-asc', label: 'Fewest Items' }
+  ];
+
+  const itemSortOptions = [
+    { value: 'title-asc', label: 'Title A-Z' },
+    { value: 'title-desc', label: 'Title Z-A' },
+    { value: 'author-asc', label: 'Author A-Z' },
+    { value: 'author-desc', label: 'Author Z-A' },
+    { value: 'provider-asc', label: 'Provider A-Z' },
+    { value: 'provider-desc', label: 'Provider Z-A' }
+  ];
+
+  // Helper function to get random preview image from exhibition items
+  const getRandomPreviewImage = (exhibition: ExhibitionItem): string | null => {
+    if (!exhibition.saveditems || exhibition.saveditems.length === 0) {
+      console.log(`Exhibition "${exhibition.name}": No saved items`);
+      return null;
+    }
+    
+    // Debug: Log all edmPreview values to see what we're working with
+    console.log(`\n=== DEBUGGING EXHIBITION: "${exhibition.name}" ===`);
+    console.log('Total items:', exhibition.saveditems.length);
+    
+    exhibition.saveditems.forEach((item, index) => {
+      console.log(`Item ${index}:`, {
+        title: item.title?.substring(0, 50) + '...',
+        edmPreview: item.edmPreview,
+        edmPreviewType: typeof item.edmPreview,
+        edmPreviewLength: item.edmPreview ? item.edmPreview.length : 'N/A'
+      });
+    });
+    
+    // Create array of all items with ANY edmPreview value (very permissive)
+    const itemsWithImages = [];
+    
+    for (const item of exhibition.saveditems) {
+      // Very permissive check - just needs to exist and not be completely empty
+      if (item.edmPreview && 
+          item.edmPreview.toString().trim().length > 0) {
+        const preview = item.edmPreview.toString().trim();
+        console.log('✓ Found valid preview:', preview);
+        itemsWithImages.push(preview);
+      } else {
+        console.log('✗ Rejected preview:', item.edmPreview, 'Type:', typeof item.edmPreview);
+      }
+    }
+    
+    console.log(`Found ${itemsWithImages.length} items with previews out of ${exhibition.saveditems.length} total`);
+    console.log('Valid previews:', itemsWithImages);
+    console.log('=== END DEBUG ===\n');
+    
+    // If no valid previews found, return null
+    if (itemsWithImages.length === 0) {
+      return null;
+    }
+    
+    // Randomly select a valid preview string
+    const randomIndex = Math.floor(Math.random() * itemsWithImages.length);
+    const selectedPreview = itemsWithImages[randomIndex];
+    console.log(`Selected preview for "${exhibition.name}":`, selectedPreview);
+    return selectedPreview;
+  };
+
+  // Keyboard handling
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (e.key === "Enter") {
+      if (showLoginModal) {
+        handleLogin();
+      } else if (showCreateModal) {
+        handleCreateAccount();
+      } else if (showExhibitionModal) {
+        handleAddExhibition();
+      }
+    } else if (e.key === "Escape") {
+      setShowLoginModal(false);
+      setShowCreateModal(false);
+      setShowExhibitionModal(false);
+    }
+  };
+
+  // Server-side data fetching
+  const updateExhibits = async () => {
+    if (!isLoggedIn || !user || exhibitionsLoading) return;
+
+    setExhibitionsLoading(true);
     try {
-      const response = await fetch(`/api/exhibits?userId=${user.id}`, {
+      const url = `/api/exhibits?userId=${user.id}&page=${pagination.currentPage}&pageSize=${pagination.pageSize}&sortBy=${exhibitionSort}`;
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -76,32 +194,204 @@ export default function Home() {
         throw new Error('Failed to fetch exhibitions');
       }
 
-      const data: ExhibitionItem[] = await response.json();
+      const result = await response.json();
       
-      setExhibitions(data);
+      setExhibitions(result.data);
+      setPagination(prev => ({
+        ...prev,
+        totalPages: result.pagination.totalPages,
+        totalItems: result.pagination.totalItems,
+        currentPage: result.pagination.currentPage
+      }));
       
-      console.log('Exhibitions updated:', data);
     } catch (error) {
-      console.error("Error fetching exhibits belonging to user:", error);
+      console.error("Error fetching exhibits:", error);
+      setExhibitionMessage("Failed to load exhibitions. Please try again.");
+    } finally {
+      setExhibitionsLoading(false);
     }
   };
 
+  const fetchExhibitionItems = async (
+    exhibitionId: string, 
+    page?: number, 
+    pageSize?: number, 
+    sortBy?: ItemSortOption
+  ) => {
+    if (!user || itemsLoading[exhibitionId]) return;
+    
+    // Use provided parameters or fall back to current state
+    const currentPagination = itemsPagination[exhibitionId] || { 
+      currentPage: 1, 
+      pageSize: 8, 
+      totalPages: 1, 
+      totalItems: 0 
+    };
+    
+    const finalPage = page ?? currentPagination.currentPage;
+    const finalPageSize = pageSize ?? currentPagination.pageSize;
+    const finalSortBy = sortBy ?? itemsSort[exhibitionId] ?? 'title-asc';
+    
+    // Set loading state
+    setItemsLoading(prev => ({ ...prev, [exhibitionId]: true }));
+    
+    try {
+      const url = `/api/exhibits?userId=${user.id}&exhibitionId=${exhibitionId}&itemsPage=${finalPage}&itemsPageSize=${finalPageSize}&itemsSortBy=${finalSortBy}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch exhibition items: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      // Update states in batch to avoid race conditions
+      setExhibitionItems(prev => ({
+        ...prev,
+        [exhibitionId]: result.data
+      }));
+      
+      setItemsPagination(prev => ({
+        ...prev,
+        [exhibitionId]: {
+          currentPage: result.pagination.currentPage,
+          pageSize: result.pagination.pageSize,
+          totalPages: result.pagination.totalPages,
+          totalItems: result.pagination.totalItems
+        }
+      }));
+      
+    } catch (error) {
+      console.error("Error fetching exhibition items:", error);
+      setExhibitionMessage(`Failed to load items: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setTimeout(() => setExhibitionMessage(''), 5000);
+    } finally {
+      setItemsLoading(prev => ({ ...prev, [exhibitionId]: false }));
+    }
+  };
+
+  // Effects
   useEffect(() => {
-    if (isLoggedIn && user && !loading) {
+    if (isLoggedIn && user && !loading && !exhibitionsLoading) {
       updateExhibits();
     }
-  }, [isLoggedIn, user, loading]);
+  }, [isLoggedIn, user, loading, pagination.currentPage, pagination.pageSize, exhibitionSort]);
 
-  const handleCreateChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  // Exhibition pagination handlers
+  const handlePageChange = useCallback((page: number): void => {
+    if (exhibitionsLoading) return;
+    setPagination(prev => ({ ...prev, currentPage: page }));
+  }, [exhibitionsLoading]);
+
+  const handlePageSizeChange = useCallback((size: number): void => {
+    if (exhibitionsLoading) return;
+    setPagination(prev => ({ ...prev, pageSize: size, currentPage: 1 }));
+  }, [exhibitionsLoading]);
+
+  const handleExhibitionSortChange = useCallback((sortBy: SortOption) => {
+    if (exhibitionsLoading) return;
+    setExhibitionSort(sortBy);
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  }, [exhibitionsLoading]);
+
+  // Item pagination handlers with direct parameter passing
+  const handleItemsPageChange = async (exhibitionId: string, page: number): Promise<void> => {
+    if (itemsLoading[exhibitionId]) return;
+    
+    // Update state first
+    setItemsPagination(prev => ({
+      ...prev,
+      [exhibitionId]: {
+        ...prev[exhibitionId],
+        currentPage: page
+      }
+    }));
+
+    // Fetch with the new page directly
+    await fetchExhibitionItems(exhibitionId, page);
+  };
+
+  const handleItemsPageSizeChange = async (exhibitionId: string, size: number): Promise<void> => {
+    if (itemsLoading[exhibitionId]) return;
+    
+    // Update state first
+    setItemsPagination(prev => ({
+      ...prev,
+      [exhibitionId]: {
+        ...prev[exhibitionId],
+        currentPage: 1,
+        pageSize: size
+      }
+    }));
+    
+    // Fetch with new page size and reset to page 1
+    await fetchExhibitionItems(exhibitionId, 1, size);
+  };
+
+  const handleItemsSortChange = async (exhibitionId: string, sortBy: ItemSortOption): Promise<void> => {
+    if (itemsLoading[exhibitionId]) return;
+    
+    // Update state first
+    setItemsSort(prev => ({
+      ...prev,
+      [exhibitionId]: sortBy
+    }));
+    
+    setItemsPagination(prev => ({
+      ...prev,
+      [exhibitionId]: {
+        ...prev[exhibitionId],
+        currentPage: 1
+      }
+    }));
+    
+    // Fetch with new sort and reset to page 1
+    await fetchExhibitionItems(exhibitionId, 1, undefined, sortBy);
+  };
+
+  // Exhibition click handler
+  const handleExhibitionClick = async (exhibitionId: string) => {
+    const wasSelected = selectedExhibition === exhibitionId;
+    setSelectedExhibition(wasSelected ? null : exhibitionId);
+    
+    if (!wasSelected) {
+      // Initialize pagination if not exists
+      if (!itemsPagination[exhibitionId]) {
+        setItemsPagination(prev => ({
+          ...prev,
+          [exhibitionId]: {
+            currentPage: 1,
+            pageSize: 8,
+            totalPages: 1,
+            totalItems: 0
+          }
+        }));
+      }
+      
+      // Initialize sort if not exists
+      if (!itemsSort[exhibitionId]) {
+        setItemsSort(prev => ({
+          ...prev,
+          [exhibitionId]: 'title-asc'
+        }));
+      }
+      
+      // Fetch items with explicit parameters
+      await fetchExhibitionItems(exhibitionId, 1, 8, 'title-asc');
+    }
+  };
+
+  // Auth handlers
+  const handleCreateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setCreateFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLoginChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setLoginFormData((prev) => ({ ...prev, [name]: value }));
     setLoginError("");
@@ -134,7 +424,6 @@ export default function Home() {
       setShowLoginModal(false);
       setLoginFormData({ username: "", password: "" });
       setLoginError("");
-      // Note: updateExhibits will be called by the useEffect when isLoggedIn changes
     } else {
       setLoginError(result.error || "Unknown login error");
     }
@@ -142,12 +431,20 @@ export default function Home() {
 
   const handleLogout = (): void => {
     logout();
-    // Clear exhibition data on logout
     setExhibitions([]);
     setSelectedExhibition(null);
+    setExhibitionItems({});
+    setItemsPagination({});
+    setItemsSort({});
+    setPagination({
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      pageSize: 10,
+    });
   };
 
-  // Exhibition handlers
+  // Exhibition CRUD handlers
   const handleAddExhibition = async () => {
     if (!isLoggedIn || !user || !newExhibitionTitle) {
       setExhibitionMessage('Please provide a title and be logged in.');
@@ -172,6 +469,7 @@ export default function Home() {
       if (!response.ok) {
         throw new Error(data as unknown as string || 'Failed to add exhibition');
       }
+      
       await updateExhibits();
       setNewExhibitionTitle('');
       setShowExhibitionModal(false);
@@ -182,28 +480,35 @@ export default function Home() {
     }
   };
 
-  const handleExhibitionClick = (exhibitionId: string) => {
-    setSelectedExhibition(selectedExhibition === exhibitionId ? null : exhibitionId);
-  };
-
-  if (loading) {
-    return (
-      <main className="p-8 max-w-4xl mx-auto">
-        <div>Loading...</div>
-      </main>
-    );
-  }
-    
-  // Purge the unwated historical artefact.
-  const patchSavedItem = async (exhibition: ExhibitionItem,index: number): Promise<void> => {
-    setExhibitUpdate(true)
+  const patchSavedItem = async (exhibitionId: string, itemIndex: number): Promise<void> => {
+    setExhibitUpdate(true);
     try {
-      const updatedSavedItems = exhibition.saveditems?.filter((_, i) => i !== index);
-
-      if (!updatedSavedItems) {
-        throw new Error("No saved items to update.");
+      const currentItems = exhibitionItems[exhibitionId] || [];
+      const itemToDelete = currentItems[itemIndex];
+      
+      if (!itemToDelete) {
+        throw new Error("Item not found for deletion.");
       }
-      const response = await fetch(`/api/exhibits/?exhibitId=${exhibition.id}`, {
+
+      const exhibition = exhibitions.find(ex => ex.id === exhibitionId);
+      if (!exhibition) {
+        throw new Error("Exhibition not found.");
+      }
+
+      const allItems = exhibition.saveditems || [];
+      const actualItemIndex = allItems.findIndex(item => 
+        item.title === itemToDelete.title && 
+        item.author === itemToDelete.author &&
+        item.source === itemToDelete.source
+      );
+      
+      if (actualItemIndex === -1) {
+        throw new Error("Item not found in original data.");
+      }
+
+      const updatedSavedItems = allItems.filter((_, i) => i !== actualItemIndex);
+
+      const response = await fetch(`/api/exhibits?exhibitId=${exhibitionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ saveditems: updatedSavedItems }),
@@ -213,39 +518,66 @@ export default function Home() {
         throw new Error(`Failed to update exhibit: ${response.statusText}`);
       }
 
-      console.log("Exhibit updated successfully.");
-      updateExhibits()
-      setExhibitUpdate(false)
+      await updateExhibits();
+      if (selectedExhibition === exhibitionId) {
+        await fetchExhibitionItems(exhibitionId);
+      }
+      
     } catch (error) {
       console.error("Error updating exhibit:", (error as Error).message);
+    } finally {
+      setExhibitUpdate(false);
     }
   };
 
-  // purge the unwanted exhibit.
   const deleteExhibit = async (id: string) => {
-    setExhibitUpdate(true)
+    setExhibitUpdate(true);
     try {
-      const response = await fetch (`/api/exhibits?exhibitId=${id}`, {
+      const response = await fetch(`/api/exhibits?exhibitId=${id}`, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"},
-      })
-       if (!response.ok) {
-        throw new Error(`Failed to update exhibit: ${response.statusText}`);
-      }
-      console.log("Exhibit deleted successfully.");
-      updateExhibits()
-      setExhibitUpdate(false)
+      });
       
-    } catch (error){
-      console.error("Error deleting Exhibit:", error)
+      if (!response.ok) {
+        throw new Error(`Failed to delete exhibit: ${response.statusText}`);
+      }
+      
+      await updateExhibits();
+    } catch (error) {
+      console.error("Error deleting exhibit:", error);
+    } finally {
+      setExhibitUpdate(false);
     }
+  };
+
+  // Helper function for paginated items
+  const getPaginatedItems = (exhibitionId: string) => {
+    const items = exhibitionItems[exhibitionId] || [];
+    const pagination = itemsPagination[exhibitionId] || {
+      currentPage: 1,
+      pageSize: 8,
+      totalPages: 1,
+      totalItems: 0
+    };
+    
+    return { items, pagination };
+  };
+
+  if (loading) {
+    return (
+      <main className="p-8 max-w-4xl mx-auto">
+        <div>Loading...</div>
+      </main>
+    );
   }
 
   return (
-    <main className="p-8 max-w-6xl mx-auto bg-gray-900 min-h-screen">
+    <main className="p-8 max-w-6xl mx-auto bg-gray-900 min-h-screen"
+     onKeyDown={handleKeyPress}
+      tabIndex={0}>
       <h1 className="text-3xl mb-6 text-blue-400 font-bold drop-shadow-sm">Welcome to Exhibition Curator</h1>
 
-      {/* User Welcome Section with Logout */}
+      {/* User Welcome Section */}
       {isLoggedIn && (
         <div className="mb-6 p-4 bg-green-900 border border-green-600 rounded-lg flex justify-between items-center">
           <p className="text-green-300">
@@ -260,7 +592,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Auth section - Only show when not logged in */}
+      {/* Auth Section */}
       {!isLoggedIn && (
         <section className="mb-6 p-4 bg-gray-800 border border-gray-600 rounded-lg">
           <h2 className="text-xl mb-4 text-blue-400 font-semibold">Authentication</h2>
@@ -281,7 +613,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Navigate to Find Artefacts page */}
+      {/* Navigate to Find Artefacts */}
       <section className="mb-8">
         <Link href="/artefacts">
           <button className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded border border-green-500 hover:border-green-400 transition-all duration-200 font-medium text-lg shadow-md">
@@ -290,64 +622,155 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* Exhibitions Section - Only show when logged in */}
+      {/* Exhibitions Section */}
       {isLoggedIn && (
         <>
-          {/* Exhibition List Section */}
           <section className="mb-8 p-6 bg-gray-800 border-2 border-gray-600 rounded-lg">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-600">
               <h2 className="text-2xl font-bold text-blue-400">Your Exhibitions</h2>
               <button
                 onClick={() => setShowExhibitionModal(true)}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded border border-blue-500 hover:border-blue-400 transition-all duration-200 font-medium"
+                disabled={exhibitionsLoading}
+                className="bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded border border-blue-500 hover:border-blue-400 transition-all duration-200 font-medium"
               >
                 ✨ Create Exhibition
               </button>
             </div>
             
-            {exhibitions.length === 0 ? (
+            {exhibitionsLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
+                <span className="ml-3 text-gray-300">Loading exhibitions...</span>
+              </div>
+            ) : exhibitions.length === 0 ? (
               <div className="p-8 bg-gray-700 border border-gray-600 rounded-lg text-center">
                 <p className="text-gray-300 text-lg">You haven&apos;t created any exhibitions yet.</p>
                 <p className="text-sm text-gray-400 mt-2">Click &quot;Create Exhibition&quot; to get started!</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {exhibitions.map((exhibition) => (
-                  <div 
-                    key={exhibition.id}
-                    onClick={() => handleExhibitionClick(exhibition.id)}
-                    className="border-2 border-gray-600 rounded-lg p-4 cursor-pointer hover:shadow-lg bg-gray-700 hover:bg-gray-650 hover:border-blue-500 transition-all duration-300 group flex justify-between items-center"
-                  >
-                    <div>
-                      <h3 className="font-bold text-lg text-blue-400 group-hover:text-blue-300 transition-colors">
-                        {exhibition.name}
-                      </h3>
-                      <p className="text-sm text-gray-400 mt-1">
-                        <span className="text-blue-400 font-medium">{exhibition.saveditems?.length || 0}</span> items • 
-                        Click to <span className="text-blue-400">{selectedExhibition === exhibition.id ? 'hide' : 'view'}</span>
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      {update && (
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteExhibit(exhibition.id);
-                        }}
-                        className="px-3 py-1 text-sm text-white bg-red-600 hover:bg-red-500 rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
+              <>
+                {/* Sorting Control */}
+                <div className="mb-4 flex justify-between items-center">
+                  <div className="flex items-center space-x-3">
+                    <label htmlFor="exhibition-sort" className="text-sm text-gray-300 font-medium">
+                      Sort by:
+                    </label>
+                    <select
+                      id="exhibition-sort"
+                      value={exhibitionSort}
+                      onChange={(e) => handleExhibitionSortChange(e.target.value as SortOption)}
+                      disabled={exhibitionsLoading}
+                      className="bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {exhibitionSortOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                ))}
+                </div>
+
+                {/* Exhibitions List */}
+                <div className="space-y-4">
+                  {exhibitions.map((exhibition) => {
+                    const previewImage = getRandomPreviewImage(exhibition);
+                    
+                    return (
+                      <div 
+                        key={exhibition.id}
+                        onClick={() => handleExhibitionClick(exhibition.id)}
+                        className="border-2 border-gray-600 rounded-lg overflow-hidden cursor-pointer hover:shadow-lg bg-gray-700 hover:bg-gray-650 hover:border-blue-500 transition-all duration-300 group"
+                      >
+                        <div className="flex h-32">
+                          {/* Image Section */}
+                          <div className="w-48 h-full flex-shrink-0 relative overflow-hidden">
+                            {previewImage ? (
+                              <img
+                                src={previewImage}
+                                alt={`Preview for ${exhibition.name}`}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const fallback = target.nextElementSibling as HTMLDivElement;
+                                  if (fallback) {
+                                    fallback.style.display = 'flex';
+                                  }
+                                }}
+                              />
+                            ) : null}
+                            <div 
+                              className={`absolute inset-0 bg-gray-600 flex items-center justify-center ${previewImage ? 'hidden' : 'flex'}`}
+                              style={{ display: previewImage ? 'none' : 'flex' }}
+                            >
+                              <div className="text-center">
+                                <div className="text-3xl text-gray-400 mb-2">🖼️</div>
+                                <p className="text-xs text-gray-400">No Preview</p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Content Section */}
+                          <div className="flex-1 p-4 flex justify-between items-center">
+                            <div className="flex-1">
+                              <h3 className="font-bold text-lg text-blue-400 group-hover:text-blue-300 transition-colors mb-1">
+                                {exhibition.name}
+                              </h3>
+                              <p className="text-sm text-gray-400">
+                                <span className="text-blue-400 font-medium">{exhibition.saveditems?.length || 0}</span> items • 
+                                Click to <span className="text-blue-400">{selectedExhibition === exhibition.id ? 'hide' : 'view'}</span>
+                              </p>
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex items-center space-x-3 ml-4">
+                              {update && (
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-400"></div>
+                              )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteExhibit(exhibition.id);
+                                }}
+                                disabled={update}
+                                className="px-3 py-1 text-sm text-white bg-red-600 hover:bg-red-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+            
+            {/* Exhibition Pagination */}
+            {exhibitions.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-gray-600">
+                <div className="flex justify-end items-center mb-4">
+                  <span className="text-gray-300 text-sm">
+                    {pagination.totalItems} total exhibitions
+                  </span>
+                </div>
+                
+                <Pagination
+                  currentPage={pagination.currentPage}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                  pageSize={pagination.pageSize}
+                  onPageSizeChange={handlePageSizeChange}
+                  pageSizeOptions={[5, 10, 20]}
+                  disabled={exhibitionsLoading}
+                />
               </div>
             )}
           </section>
 
-          {/* Exhibition Items Display Section - Conditionally rendered */}
+          {/* Exhibition Items Display */}
           {selectedExhibition && (
             <section className="mb-8 p-6 bg-gray-750 border-2 border-blue-500 rounded-lg">
               <div className="mb-6">
@@ -358,8 +781,9 @@ export default function Home() {
               </div>
               
               {(() => {
-                const exhibition = exhibitions.find(ex => ex.id === selectedExhibition);
-                if (!exhibition?.saveditems || exhibition.saveditems.length === 0) {
+                const { items: paginatedItems, pagination } = getPaginatedItems(selectedExhibition);
+                
+                if (pagination.totalItems === 0) {
                   return (
                     <div className="p-8 bg-gray-700 border border-gray-600 rounded-lg text-center">
                       <p className="text-gray-400 italic">No items in this exhibition yet.</p>
@@ -369,33 +793,88 @@ export default function Home() {
                 }
                 
                 return (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {exhibition.saveditems.map((item, index) => (
-                      <div key={`${exhibition.id}-${index}`} className="relative">
-                        <div className="w-full max-w-sm mx-auto">
-                          <Card
-                            title={item.title}
-                            description={item?.description}
-                            author={item?.author}
-                            provider={item?.provider}
-                            source={item?.source}
-                            image={item?.edmPreview}
-                          />
-                        </div>
-                        <button
-                          onClick={() => patchSavedItem(exhibition, index)}
-                          className="mt-3 w-full px-3 py-2 text-sm text-white bg-red-600 hover:bg-red-500 rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
+                  <>
+                    {/* Items Sorting Control */}
+                    <div className="mb-4 flex justify-between items-center">
+                      <div className="flex items-center space-x-3">
+                        <label htmlFor={`items-sort-${selectedExhibition}`} className="text-sm text-gray-300 font-medium">
+                          Sort items by:
+                        </label>
+                        <select
+                          id={`items-sort-${selectedExhibition}`}
+                          value={itemsSort[selectedExhibition] || 'title-asc'}
+                          onChange={(e) => handleItemsSortChange(selectedExhibition, e.target.value as ItemSortOption)}
+                          disabled={itemsLoading[selectedExhibition]}
+                          className="bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          🗑️ Remove Item
-                        </button>
-                        {update && (
-                          <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center rounded">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-                          </div>
-                        )}
+                          {itemSortOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+
+                    {/* Items Grid */}
+                    {itemsLoading[selectedExhibition] ? (
+                      <div className="flex justify-center items-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400"></div>
+                        <span className="ml-3 text-gray-300">Loading items...</span>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+                        {paginatedItems.map((item, index) => (
+                          <div key={`${selectedExhibition}-${index}`} className="relative">
+                            <div className="w-full max-w-sm mx-auto">
+                              <Card
+                                title={item.title}
+                                description={item?.description}
+                                author={item?.author}
+                                provider={item?.provider}
+                                source={item?.source}
+                                image={item?.edmPreview}
+                              />
+                            </div>
+                            <button
+                              onClick={() => patchSavedItem(selectedExhibition, index)}
+                              disabled={update || itemsLoading[selectedExhibition]}
+                              className="mt-3 w-full px-3 py-2 text-sm text-white bg-red-600 hover:bg-red-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded border border-red-500 hover:border-red-400 transition-all duration-200 font-medium"
+                            >
+                              🗑️ Remove Item
+                            </button>
+                            {update && (
+                              <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center rounded">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Items Pagination */}
+                    <div className="mt-6 pt-4 border-t border-gray-600">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-gray-300 text-sm">
+                          Showing {paginatedItems.length} of {pagination.totalItems} items
+                        </span>
+                        <span className="text-gray-400 text-xs">
+                          Page {pagination.currentPage} of {pagination.totalPages}
+                        </span>
+                      </div>
+                      
+                      <Pagination
+                        currentPage={pagination.currentPage}
+                        totalPages={pagination.totalPages}
+                        onPageChange={(page) => handleItemsPageChange(selectedExhibition, page)}
+                        pageSize={pagination.pageSize}
+                        onPageSizeChange={(size) => handleItemsPageSizeChange(selectedExhibition, size)}
+                        pageSizeOptions={[4, 8, 12, 16]}
+                        disabled={itemsLoading[selectedExhibition]}
+                      />
+                    </div>
+                  </>
                 );
               })()}
             </section>
@@ -403,11 +882,20 @@ export default function Home() {
         </>
       )}
 
+      {/* Error Messages */}
+      {exhibitionMessage && (
+        <div className="mb-4 p-3 bg-red-900 border border-red-600 text-red-300 rounded">
+          {exhibitionMessage}
+        </div>
+      )}
+
       {/* Login Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-gray-600">
-            <h3 className="text-2xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">Login</h3>
+            <h3 className="text-2xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">
+              Login
+            </h3>
 
             {loginError && (
               <div className="mb-4 p-3 bg-red-900 border border-red-600 text-red-300 rounded">
@@ -509,7 +997,9 @@ export default function Home() {
       {showExhibitionModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-lg shadow-2xl max-w-sm w-full border-2 border-gray-600">
-            <h2 className="text-xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">Create New Exhibition</h2>
+            <h2 className="text-xl font-bold mb-6 text-blue-400 border-b border-gray-600 pb-3">
+              Create New Exhibition
+            </h2>
             <input
               type="text"
               value={newExhibitionTitle}

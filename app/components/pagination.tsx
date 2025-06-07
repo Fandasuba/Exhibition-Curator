@@ -7,6 +7,7 @@ interface Pagination{
     pageSize: number;
     onPageSizeChange?: (pageSize: number) => void;
     pageSizeOptions?: number[];
+    disabled?: boolean;
 }
 
 export default function Pagination({
@@ -15,11 +16,12 @@ export default function Pagination({
   onPageChange,
   pageSize,
   onPageSizeChange,
-  pageSizeOptions = [10, 20, 50]
+  pageSizeOptions = [10, 20, 50],
+  disabled = false
 }: Pagination) {
   const getPageNumbers = () => {
     const pages = [];
-    const maxPagesToShow = 5; // Show 5 page numbers at a time
+    const maxPagesToShow = 5;
     
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = startPage + maxPagesToShow - 1;
@@ -36,6 +38,7 @@ export default function Pagination({
     
     return pages;
   };
+
 return (
     <div className="flex flex-col sm:flex-row items-center justify-between mt-4 mb-4 p-4 bg-gray-800 rounded border border-gray-600">
       <div className="flex items-center mb-2 sm:mb-0">
@@ -49,7 +52,8 @@ return (
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="border border-gray-600 rounded py-1 px-2 text-sm bg-gray-700 text-gray-300 hover:border-blue-500 focus:border-blue-400 focus:outline-none transition-colors"
+              disabled={disabled}
+              className="border border-gray-600 rounded py-1 px-2 text-sm bg-gray-700 text-gray-300 hover:border-blue-500 focus:border-blue-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {pageSizeOptions.map((size) => (
                 <option key={size} value={size} className="bg-gray-700">
@@ -64,14 +68,14 @@ return (
       <div className="flex items-center space-x-1">
         <button
           onClick={() => onPageChange(1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || disabled}
           className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &laquo;
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || disabled}
           className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &lsaquo;
@@ -81,7 +85,8 @@ return (
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`px-3 py-1 rounded border transition-all duration-200 ${
+            disabled={disabled}
+            className={`px-3 py-1 rounded border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
               currentPage === page
                 ? 'bg-blue-600 text-white border-blue-500 shadow-md'
                 : 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400'
@@ -93,14 +98,14 @@ return (
        
         <button
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || disabled}
           className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &rsaquo;
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || disabled}
           className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           &raquo;

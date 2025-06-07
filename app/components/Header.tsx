@@ -43,6 +43,11 @@ const Header: React.FC = () => {
                 Browse Collection
               </button>
             </Link>
+            <Link href="/about">
+              <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded border border-blue-500 hover:border-blue-400 transition-all duration-200 font-medium shadow-md">
+                About Exhibition Curator
+              </button>
+            </Link>
           </nav>
         </div>
       </div>

@@ -47,8 +47,9 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
       if (!response.ok) {
         throw new Error('Failed to fetch exhibitions');
       }
-      const data: Exhibition[] = await response.json();
-      setExhibitions(data);
+      const result = await response.json();
+      const exhibitions: Exhibition[] = result.data || result;
+      setExhibitions(exhibitions);
     } catch (error) {
       console.error('Error fetching exhibitions:', error);
       setMessage('Failed to load exhibitions');

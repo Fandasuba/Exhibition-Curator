@@ -88,7 +88,7 @@ useEffect(() => {
 
   return (
     <main className="p-8 max-w-6xl mx-auto bg-gray-900 min-h-screen">
-      <h1 className="text-3xl mb-6 text-blue-400 font-bold drop-shadow-sm">🏛️ Explore Medieval Europe</h1>
+      <h1 className="text-3xl mb-6 text-blue-400 font-bold drop-shadow-sm">🏛️ Explore Historical Europe</h1>
       
       {/* Search Controls Section */}
       <section className="mb-8 p-6 bg-gray-800 border-2 border-gray-600 rounded-lg">
@@ -136,6 +136,10 @@ useEffect(() => {
                 onClick={() => handleSearch()} 
                 className="px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded border border-green-500 hover:border-green-400 transition-all duration-200 font-medium h-fit"
                 disabled={isLoading}
+                 onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                
               >
                 {isLoading ? (
                   <div className="flex items-center">
