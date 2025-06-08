@@ -12,8 +12,7 @@ const getKey = () => {
   return new TextEncoder().encode(secretKey);
 };
 
-// Use a safe fallback during build time
-const key = secretKey ? new TextEncoder().encode(secretKey) : new TextEncoder().encode('build-time-fallback-key');
+// Removed unused key variable - using getKey() function instead
 
 interface SessionPayload extends JWTPayload {
   userId: string;
