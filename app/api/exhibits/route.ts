@@ -117,4 +117,4 @@ export async function DELETE(request: NextRequest) {
     console.error("DELETE API request error:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
-}1
+}
