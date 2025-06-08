@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/app/lib/session";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getSession();
     if (!session) {
@@ -36,13 +36,24 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exhibitions`, {
+    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/exhibitions`;
+    
+    console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+    console.log("Full backend URL:", backendUrl);
+    console.log("Request body:", body);
+
+    const response = await fetch(backendUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
     
-    const data = await response.json();
+    const responseText = await response.text();
+    
+    console.log("Response status:", response.status);
+    console.log("Response text:", responseText);
+    
+    const data = JSON.parse(responseText);
     
     return Response.json(data, { status: response.status });
   } catch (error) {
