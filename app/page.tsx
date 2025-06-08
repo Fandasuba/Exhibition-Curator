@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useUser } from "./user-context";
 import Card from "./components/itemCards";
 import Pagination from "./components/pagination";
+import { sortItems } from "./utils/sort";
 
 interface CreateFormData {
   username: string;
@@ -468,54 +469,75 @@ export default function Home() {
   };
 
   const patchSavedItem = async (exhibitionId: string, itemIndex: number): Promise<void> => {
-    setExhibitUpdate(true);
-    try {
-      const currentItems = exhibitionItems[exhibitionId] || [];
-      const itemToDelete = currentItems[itemIndex];
-      
-      if (!itemToDelete) {
-        throw new Error("Item not found for deletion.");
-      }
-
-      const exhibition = exhibitions.find(ex => ex.id === exhibitionId);
-      if (!exhibition) {
-        throw new Error("Exhibition not found.");
-      }
-
-      const allItems = exhibition.saveditems || [];
-      const actualItemIndex = allItems.findIndex(item => 
-        item.title === itemToDelete.title && 
-        item.author === itemToDelete.author &&
-        item.source === itemToDelete.source
-      );
-      
-      if (actualItemIndex === -1) {
-        throw new Error("Item not found in original data.");
-      }
-
-      const updatedSavedItems = allItems.filter((_, i) => i !== actualItemIndex);
-
-      const response = await fetch(`/api/exhibits?exhibitId=${exhibitionId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ saveditems: updatedSavedItems }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update exhibit: ${response.statusText}`);
-      }
-
-      await updateExhibits();
-      if (selectedExhibition === exhibitionId) {
-        await fetchExhibitionItems(exhibitionId);
-      }
-      
-    } catch (error) {
-      console.error("Error updating exhibit:", (error as Error).message);
-    } finally {
-      setExhibitUpdate(false);
+  setExhibitUpdate(true);
+  try {
+    const currentItems = exhibitionItems[exhibitionId] || [];
+    const itemToDelete = currentItems[itemIndex];
+    
+    if (!itemToDelete) {
+      throw new Error("Item not found for deletion.");
     }
-  };
+
+    const exhibition = exhibitions.find(ex => ex.id === exhibitionId);
+    if (!exhibition) {
+      throw new Error("Exhibition not found.");
+    }
+
+    const allItems = exhibition.saveditems || [];
+    const actualItemIndex = allItems.findIndex(item => 
+      item.title === itemToDelete.title && 
+      item.author === itemToDelete.author &&
+      item.source === itemToDelete.source
+    );
+    
+    if (actualItemIndex === -1) {
+      throw new Error("Item not found in original data.");
+    }
+
+    const updatedSavedItems = allItems.filter((_, i) => i !== actualItemIndex);
+
+    const response = await fetch(`/api/exhibits?exhibitId=${exhibitionId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ saveditems: updatedSavedItems }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update exhibit: ${response.statusText}`);
+    }
+
+    // Update the exhibitions list first
+    await updateExhibits();
+    
+    // Then refresh the items display for the current exhibition
+    if (selectedExhibition === exhibitionId) {
+      const updatedExhibition = exhibitions.find(ex => ex.id === exhibitionId);
+      if (updatedExhibition && updatedExhibition.saveditems) {
+        const currentSort = itemsSort[exhibitionId] || 'title-asc';
+        const sortedItems = sortItems(updatedExhibition.saveditems, currentSort) as SavedItem[];
+        
+        setExhibitionItems(prev => ({
+          ...prev,
+          [exhibitionId]: sortedItems
+        }));
+        
+        setItemsPagination(prev => ({
+          ...prev,
+          [exhibitionId]: {
+            ...prev[exhibitionId],
+            totalItems: sortedItems.length,
+            totalPages: Math.ceil(sortedItems.length / (prev[exhibitionId]?.pageSize || 8))
+          }
+        }));
+      }
+    }
+    
+  } catch (error) {
+    console.error("Error updating exhibit:", (error as Error).message);
+  } finally {
+    setExhibitUpdate(false);
+  }
+};
 
   const deleteExhibit = async (id: string) => {
     setExhibitUpdate(true);
