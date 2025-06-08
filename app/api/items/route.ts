@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
     const { exhibitionId, userId, item } = body;
 
     console.log("Frontend items API - received:", { exhibitionId, userId, item });
+
     if (!exhibitionId || !userId || !item) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -23,21 +24,22 @@ export async function POST(request: NextRequest) {
     };
 
     console.log("Sending to backend:", backendPayload);
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/items/additem`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(backendPayload)
     });
     
-    const responseText = await response.text();
-    console.log("Backend response:", responseText);
-    
     if (!response.ok) {
-      console.error("Backend error status:", response.status);
-      throw new Error("Failed to add item to exhibition");
+      const errorData = await response.json();
+      console.error("Backend error:", errorData);
+      return Response.json({ 
+        error: errorData.error || "Failed to add item to exhibition" 
+      }, { status: response.status });
     }
     
-    const data = JSON.parse(responseText);
+    const data = await response.json();
     
     return Response.json(data, { status: response.status });
   } catch (error) {
