@@ -53,115 +53,120 @@ export default function Card({
 
   return (
     <>
-      {/* Book-like Card Container */}
+      {/* Mobile-Optimized Card Container */}
       <div className="group perspective-1000">
-        <div className="relative transform transition-all duration-300 hover:scale-105">
-          {/* Layered Page Shadows - Multiple pages effect */}
-          <div className="absolute inset-0 bg-amber-900 rounded-r-lg transform translate-x-4 translate-y-4 opacity-80"></div>
-          <div className="absolute inset-0 bg-stone-100 rounded-r-lg transform translate-x-3 translate-y-3 opacity-90"></div>
-          <div className="absolute inset-0 bg-stone-50 rounded-r-lg transform translate-x-2 translate-y-2 opacity-95"></div>
-          <div className="absolute inset-0 bg-amber-50 rounded-r-lg transform translate-x-1 translate-y-1 opacity-100"></div>
+        <div className="relative transform transition-all duration-300 sm:hover:scale-105">
+          {/* Simplified layered shadows - reduced on mobile */}
+          <div className="absolute inset-0 bg-amber-900 rounded-r-lg transform translate-x-1 sm:translate-x-4 translate-y-1 sm:translate-y-4 opacity-60 sm:opacity-80"></div>
+          <div className="absolute inset-0 bg-stone-100 rounded-r-lg transform translate-x-0.5 sm:translate-x-3 translate-y-0.5 sm:translate-y-3 opacity-70 sm:opacity-90 hidden sm:block"></div>
+          <div className="absolute inset-0 bg-stone-50 rounded-r-lg transform translate-x-0.5 sm:translate-x-2 translate-y-0.5 sm:translate-y-2 opacity-80 sm:opacity-95 hidden sm:block"></div>
+          <div className="absolute inset-0 bg-amber-50 rounded-r-lg transform translate-x-0.5 sm:translate-x-1 translate-y-0.5 sm:translate-y-1 opacity-100"></div>
           
-          {/* Book Spine Effect */}
-          <div className="absolute left-0 top-2 bottom-2 w-3 bg-gradient-to-b from-amber-800 via-amber-900 to-amber-800 rounded-l border-r border-amber-700"></div>
+          {/* Book Spine Effect - smaller on mobile */}
+          <div className="absolute left-0 top-1 sm:top-2 bottom-1 sm:bottom-2 w-2 sm:w-3 bg-gradient-to-b from-amber-800 via-amber-900 to-amber-800 rounded-l border-r border-amber-700"></div>
           
           {/* Main Book Body */}
-          <div className="relative bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 border-2 border-amber-700 rounded-r-lg shadow-lg overflow-hidden">
+          <div className="relative bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 border border-amber-700 sm:border-2 rounded-r-lg shadow-md sm:shadow-lg overflow-hidden">
             
-            {/* Leather Texture Overlay */}
+            {/* Simplified leather texture for mobile performance */}
             <div 
-              className="absolute inset-0 opacity-20 mix-blend-multiply"
+              className="absolute inset-0 opacity-10 sm:opacity-20 mix-blend-multiply"
               style={{
-                backgroundImage: `radial-gradient(circle at 25% 25%, transparent 20%, rgba(139, 69, 19, 0.1) 21%, rgba(139, 69, 19, 0.1) 25%, transparent 26%), 
-                                 radial-gradient(circle at 75% 75%, transparent 20%, rgba(160, 82, 45, 0.1) 21%, rgba(160, 82, 45, 0.1) 25%, transparent 26%),
-                                 linear-gradient(45deg, transparent 45%, rgba(139, 69, 19, 0.05) 46%, rgba(139, 69, 19, 0.05) 54%, transparent 55%)`,
-                backgroundSize: '8px 8px, 12px 12px, 4px 4px'
+                backgroundImage: `radial-gradient(circle at 25% 25%, transparent 20%, rgba(139, 69, 19, 0.1) 21%, rgba(139, 69, 19, 0.1) 25%, transparent 26%)`,
+                backgroundSize: '6px 6px'
               }}
             ></div>
             
-            {/* Book Content */}
-            <div className="relative p-4 ml-2">
+            {/* Book Content - responsive padding */}
+            <div className="relative p-2 sm:p-4 ml-1 sm:ml-2">
               
-              {/* Image as Book Cover */}
+              {/* Image as Book Cover - responsive sizing */}
               {image && (
-                <div className="relative overflow-hidden rounded mb-4 border border-amber-600 shadow-inner">
+                <div className="relative overflow-hidden rounded mb-2 sm:mb-4 border border-amber-600 shadow-inner">
                   <img
                     src={image}
                     alt={title}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-24 sm:h-32 md:h-40 lg:h-48 object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                     }}
                   />
-                  {/* Vintage Photo Frame Effect */}
-                  <div className="absolute inset-0 border-4 border-amber-100 pointer-events-none opacity-30"></div>
+                  {/* Simplified frame effect on mobile */}
+                  <div className="absolute inset-0 border-2 sm:border-4 border-amber-100 pointer-events-none opacity-20 sm:opacity-30"></div>
                 </div>
               )}
 
-              {/* Book Title - Like embossed text */}
-              <h3 className="font-serif font-bold text-lg mb-3 text-amber-900 leading-tight line-clamp-2 group-hover:text-amber-800 transition-colors drop-shadow-sm">
+              {/* Book Title - responsive sizing */}
+              <h3 className="font-serif font-bold text-sm sm:text-base lg:text-lg mb-2 sm:mb-3 text-amber-900 leading-tight line-clamp-2 group-hover:text-amber-800 transition-colors drop-shadow-sm">
                 {title}
               </h3>
 
-              {/* Decorative Separator */}
-              <div className="flex items-center mb-3">
+              {/* Decorative Separator - simplified on mobile */}
+              <div className="flex items-center mb-2 sm:mb-3">
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
-                <div className="mx-2 text-amber-600 text-sm">⚜</div>
+                <div className="mx-1 sm:mx-2 text-amber-600 text-xs sm:text-sm">⚜</div>
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
               </div>
 
-              {/* Description */}
+              {/* Description - fewer lines on mobile */}
               {description && (
-                <p className="text-stone-700 text-sm mb-3 line-clamp-3 leading-relaxed font-serif">
+                <p className="text-stone-700 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2 sm:line-clamp-3 leading-relaxed font-serif">
                   {description}
                 </p>
               )}
 
-              {/* Author & Provider - Like manuscript details */}
-              <div className="space-y-1 mb-4">
+              {/* Author & Provider - smaller text on mobile */}
+              <div className="space-y-0.5 sm:space-y-1 mb-2 sm:mb-4">
                 {author && (
                   <p className="text-amber-800 text-xs font-medium">
-                    <span className="font-serif italic">Scribed by:</span> {author}
+                    <span className="font-serif italic">Scribed by:</span> 
+                    <span className="hidden sm:inline"> {author}</span>
+                    <span className="sm:hidden"> {author.length > 20 ? author.substring(0, 20) + '...' : author}</span>
                   </p>
                 )}
                 {provider && (
                   <p className="text-amber-700 text-xs">
-                    <span className="font-serif italic">Collection:</span> {provider}
+                    <span className="font-serif italic">Collection:</span> 
+                    <span className="hidden sm:inline"> {provider}</span>
+                    <span className="sm:hidden"> {provider.length > 20 ? provider.substring(0, 20) + '...' : provider}</span>
                   </p>
                 )}
               </div>
 
-              {/* Source Link */}
+              {/* Source Link - responsive */}
               {source && (
                 <a
                   href={source}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-amber-700 hover:text-amber-800 text-xs underline decoration-dotted underline-offset-2 transition-colors mb-3"
+                  className="inline-flex items-center text-amber-700 hover:text-amber-800 text-xs underline decoration-dotted underline-offset-2 transition-colors mb-2 sm:mb-3"
                 >
                   <span className="mr-1">📜</span>
-                  View The Source
+                  <span className="hidden sm:inline">View The Source</span>
+                  <span className="sm:hidden">Source</span>
                 </a>
               )}
 
-              {/* Add to Exhibition Button */}
+              {/* Add to Exhibition Button - responsive sizing */}
               {showAddButton && (
-                <div className="pt-3 border-t border-amber-300">
+                <div className="pt-2 sm:pt-3 border-t border-amber-300">
                   <button
                     onClick={handleAddToExhibit}
-                    className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-amber-50 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 disabled:from-stone-400 disabled:to-stone-500 disabled:text-stone-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-amber-50 py-1.5 sm:py-2.5 px-2 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 disabled:from-stone-400 disabled:to-stone-500 disabled:text-stone-200 shadow-md hover:shadow-lg sm:transform sm:hover:-translate-y-0.5"
                     disabled={!isLoggedIn}
                   >
                     {isLoggedIn ? (
                       <span className="flex items-center justify-center">
                         <span className="mr-1">📖</span>
-                        Add to Collection
+                        <span className="hidden sm:inline">Add to Collection</span>
+                        <span className="sm:hidden">Add</span>
                       </span>
                     ) : (
                       <span className="flex items-center justify-center">
                         <span className="mr-1">🔒</span>
-                        Login to Collect
+                        <span className="hidden sm:inline">Login to Collect</span>
+                        <span className="sm:hidden">Login</span>
                       </span>
                     )}
                   </button>
@@ -169,12 +174,12 @@ export default function Card({
               )}
             </div>
 
-            {/* Corner Decorations - Alpha and Omega */}
-            <div className="absolute top-2 right-2 text-amber-600 opacity-40 text-xl">α</div>
-            <div className="absolute bottom-2 left-6 text-amber-600 opacity-40 text-xl">α</div>
+            {/* Corner Decorations - smaller and fewer on mobile */}
+            <div className="absolute top-1 sm:top-2 right-1 sm:right-2 text-amber-600 opacity-30 sm:opacity-40 text-sm sm:text-xl">α</div>
+            <div className="absolute bottom-1 sm:bottom-2 left-3 sm:left-6 text-amber-600 opacity-30 sm:opacity-40 text-sm sm:text-xl hidden sm:block">α</div>
             
-            {/* Omega at bottom center */}
-            <div className="absolute bottom-1 right-2 text-amber-600 opacity-40 text-base">Ω</div>
+            {/* Omega at bottom center - smaller on mobile */}
+            <div className="absolute bottom-0.5 sm:bottom-1 right-1 sm:right-2 text-amber-600 opacity-30 sm:opacity-40 text-xs sm:text-base">Ω</div>
             
             {/* Page Edge Effect */}
             <div className="absolute right-0 top-0 bottom-0 w-px bg-gradient-to-b from-amber-600 via-amber-500 to-amber-600 opacity-50"></div>

@@ -219,36 +219,37 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-100 via-amber-50 to-stone-200">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-serif text-amber-800 mb-4 drop-shadow-sm">
-            🏛️ Explore Historical Europe
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
+        {/* Hero Section - Smaller on mobile */}
+        <div className="text-center mb-6 sm:mb-12">
+          <h1 className="text-3xl sm:text-5xl font-serif text-amber-800 mb-2 sm:mb-4 drop-shadow-sm">
+            🏛️ <span className="sm:hidden">Historical Europe</span>
+            <span className="hidden sm:inline">Explore Historical Europe</span>
           </h1>
-          <p className="text-lg text-stone-700 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-stone-700 max-w-2xl mx-auto px-2">
             Discover rare manuscripts, artifacts, and treasures from Europe&apos;s greatest archives
           </p>
         </div>
         
-        {/* Search Controls Section */}
-        <section className="mb-12">
-          <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-8 py-6">
-              <h2 className="text-2xl font-serif text-amber-50 mb-2">Search Archives</h2>
-              <p className="text-amber-100">Access millions of historical documents and artifacts</p>
+        {/* Search Controls Section - More compact on mobile */}
+        <section className="mb-6 sm:mb-12">
+          <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+            <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-4 sm:px-8 py-4 sm:py-6">
+              <h2 className="text-lg sm:text-2xl font-serif text-amber-50 mb-1 sm:mb-2">Search Archives</h2>
+              <p className="text-xs sm:text-base text-amber-100">Access millions of historical documents and artifacts</p>
             </div>
             
-            <div className="p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+            <div className="p-4 sm:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-4 sm:mb-6">
                 {/* API Source Selector */}
                 <div className="lg:col-span-3">
-                  <label className="block text-sm font-medium text-stone-700 mb-3">
+                  <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                     Archive Source
                   </label>
                   <select
                     value={apiSource}
                     onChange={(e) => setApiSource(e.target.value)}
-                    className="w-full px-4 py-3 border border-stone-300 rounded-xl bg-stone-50 text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg sm:rounded-xl bg-stone-50 text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all text-sm sm:text-base"
                   >
                     <option value="europeana">Europeana Collection</option>
                     <option value="digital-bodleian-oxford">Oxford Digital Manuscripts</option>
@@ -257,7 +258,7 @@ export default function HomePage() {
                 
                 {/* Search Input */}
                 <div className="lg:col-span-7">
-                  <label className="block text-sm font-medium text-stone-700 mb-3">
+                  <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                     Search Terms
                   </label>
                   <input
@@ -265,7 +266,7 @@ export default function HomePage() {
                     placeholder={setIdea}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="w-full px-4 py-3 border border-stone-300 rounded-xl bg-stone-50 text-stone-800 placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg sm:rounded-xl bg-stone-50 text-stone-800 placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all text-sm sm:text-base"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSearch();
                     }}
@@ -276,17 +277,18 @@ export default function HomePage() {
                 <div className="lg:col-span-2 flex items-end">
                   <button 
                     onClick={() => handleSearch()} 
-                    className="w-full px-6 py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-50 mr-2"></div>
-                        Searching...
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-amber-50 mr-2"></div>
+                        <span className="hidden sm:inline">Searching...</span>
+                        <span className="sm:hidden">...</span>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center">
-                        <span className="mr-2">🔍</span>
+                        <span className="mr-1 sm:mr-2">🔍</span>
                         Search
                       </div>
                     )}
@@ -294,16 +296,19 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Advanced Filters Toggle */}
-              <div className="border-t border-stone-300 pt-6">
+              {/* Advanced Filters Toggle - Smaller on mobile */}
+              <div className="border-t border-stone-300 pt-4 sm:pt-6">
                 <button
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="flex items-center gap-3 px-6 py-3 bg-stone-600 hover:bg-stone-700 text-stone-50 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50"
+                  className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-stone-600 hover:bg-stone-700 text-stone-50 rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 text-sm sm:text-base"
                   disabled={apiSource !== 'europeana'}
                 >
-                  <span className="text-lg">⚙️</span>
-                  <span className="font-medium">Advanced Filters</span>
-                  {apiSource !== 'europeana' && <span className="text-xs opacity-75">(Europeana only)</span>}
+                  <span className="text-base sm:text-lg">⚙️</span>
+                  <span className="font-medium">
+                    <span className="sm:hidden">Filters</span>
+                    <span className="hidden sm:inline">Advanced Filters</span>
+                  </span>
+                  {apiSource !== 'europeana' && <span className="text-xs opacity-75 hidden sm:inline">(Europeana only)</span>}
                   {getActiveFilterCount() > 0 && apiSource === 'europeana' && (
                     <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                       {getActiveFilterCount()}
@@ -317,20 +322,20 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Advanced Filters Panel */}
+              {/* Advanced Filters Panel - Responsive grid */}
               {showAdvancedFilters && apiSource === 'europeana' && (
-                <div className="mt-6 p-6 bg-gradient-to-br from-stone-50 to-amber-50 rounded-xl border border-stone-300">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-stone-50 to-amber-50 rounded-lg sm:rounded-xl border border-stone-300">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     
-                    {/* Media Type Filter */}
+                    {/* All filters with smaller mobile styling */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-3">
+                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Media Type
                       </label>
                       <select
                         value={filters.mediaType}
                         onChange={(e) => handleFilterChange('mediaType', e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">All Types</option>
                         <option value="IMAGE">🖼️ Images</option>
@@ -341,15 +346,14 @@ export default function HomePage() {
                       </select>
                     </div>
 
-                    {/* Reusability Filter */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-3">
+                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Copyright Status
                       </label>
                       <select
                         value={filters.reusability}
                         onChange={(e) => handleFilterChange('reusability', e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">All Rights</option>
                         <option value="open">✅ Open (Free to reuse)</option>
@@ -358,15 +362,14 @@ export default function HomePage() {
                       </select>
                     </div>
 
-                    {/* Image Size Filter */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-3">
+                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Image Quality
                       </label>
                       <select
                         value={filters.imageSize}
                         onChange={(e) => handleFilterChange('imageSize', e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">Any Size</option>
                         <option value="small">📱 Small (&lt; 0.5MP)</option>
@@ -376,15 +379,14 @@ export default function HomePage() {
                       </select>
                     </div>
 
-                    {/* Country Filter */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-3">
+                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Country
                       </label>
                       <select
                         value={filters.country}
                         onChange={(e) => handleFilterChange('country', e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">All Countries</option>
                         <option value="france">🇫🇷 France</option>
@@ -402,15 +404,14 @@ export default function HomePage() {
                       </select>
                     </div>
 
-                    {/* Language Filter */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-3">
+                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Language
                       </label>
                       <select
                         value={filters.language}
                         onChange={(e) => handleFilterChange('language', e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">All Languages</option>
                         <option value="en">🇬🇧 English</option>
@@ -426,15 +427,14 @@ export default function HomePage() {
                       </select>
                     </div>
 
-                    {/* Color Palette Filter */}
                     <div>
-                      <label className="block text-sm font-medium text-stone-700 mb-3">
+                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Dominant Color
                       </label>
                       <select
                         value={filters.colourPalette}
                         onChange={(e) => handleFilterChange('colourPalette', e.target.value)}
-                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">Any Color</option>
                         <option value="#FF0000">🔴 Red</option>
@@ -451,16 +451,16 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Year Range Filter */}
-                  <div className="mt-8">
-                    <label className="block text-sm font-medium text-stone-700 mb-3">
+                  {/* Year Range Filter - Responsive */}
+                  <div className="mt-6 sm:mt-8">
+                    <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                       Year Range
                     </label>
-                    <div className="mb-4 p-4 bg-amber-100 border-l-4 border-amber-600 rounded-lg">
+                    <div className="mb-3 sm:mb-4 p-3 sm:p-4 bg-amber-100 border-l-4 border-amber-600 rounded-lg">
                       <div className="flex items-start">
-                        <span className="text-amber-700 mr-2 text-lg">💡</span>
+                        <span className="text-amber-700 mr-2 text-base sm:text-lg">💡</span>
                         <div>
-                          <p className="text-sm text-amber-800 font-medium">Historical Dating Tip</p>
+                          <p className="text-xs sm:text-sm text-amber-800 font-medium">Historical Dating Tip</p>
                           <p className="text-xs text-amber-700 mt-1">
                             Enter negative years for BCE dates (e.g., -500 = 500 BCE)
                           </p>
@@ -473,21 +473,21 @@ export default function HomePage() {
                         placeholder="From year"
                         value={filters.yearRange.from}
                         onChange={(e) => handleYearRangeChange('from', e.target.value)}
-                        className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
+                        className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
                       />
                       <input
                         type="number"
                         placeholder="To year"
                         value={filters.yearRange.to}
                         onChange={(e) => handleYearRangeChange('to', e.target.value)}
-                        className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
+                        className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
                       />
                     </div>
                   </div>
 
-                  {/* Boolean Filters */}
-                  <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex items-center gap-3 text-stone-700 text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
+                  {/* Boolean Filters - Responsive */}
+                  <div className="mt-6 sm:mt-8 grid grid-cols-1 gap-3 sm:gap-4">
+                    <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
                       <input
                         type="checkbox"
                         checked={filters.hasMedia}
@@ -496,7 +496,7 @@ export default function HomePage() {
                       />
                       <span>Has downloadable media</span>
                     </label>
-                    <label className="flex items-center gap-3 text-stone-700 text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
+                    <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
                       <input
                         type="checkbox"
                         checked={filters.hasThumbnail}
@@ -509,10 +509,10 @@ export default function HomePage() {
 
                   {/* Clear Filters Button */}
                   {getActiveFilterCount() > 0 && (
-                    <div className="mt-6 text-center">
+                    <div className="mt-4 sm:mt-6 text-center">
                       <button
                         onClick={clearAllFilters}
-                        className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                        className="px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base"
                       >
                         Clear All Filters ({getActiveFilterCount()})
                       </button>
@@ -527,91 +527,46 @@ export default function HomePage() {
         {/* Results Section */}
         <section>
           {isLoading ? (
-            <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-2xl shadow-lg p-16 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-full mb-6">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-700"></div>
+            <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-amber-100 rounded-full mb-4 sm:mb-6">
+                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-amber-700"></div>
               </div>
-              <h3 className="text-xl font-serif text-amber-800 mb-2">Searching Archives</h3>
-              <p className="text-stone-600">Discovering historical treasures for you...</p>
+              <h3 className="text-lg sm:text-xl font-serif text-amber-800 mb-2">Searching Archives</h3>
+              <p className="text-sm sm:text-base text-stone-600">Discovering historical treasures for you...</p>
             </div>
           ) : results ? (
             <>
               {results.length > 0 ? (
                 <>
-                  {/* Results Header */}
-                  <div className="mb-8 bg-white/80 backdrop-blur border border-stone-300 rounded-xl shadow-sm p-6">
+                  {/* Results Header - More compact on mobile */}
+                  <div className="mb-4 sm:mb-8 bg-white/80 backdrop-blur border border-stone-300 rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h2 className="text-2xl font-serif text-amber-800 mb-1">
+                        <h2 className="text-lg sm:text-2xl font-serif text-amber-800 mb-1">
                           Discovery Results
                         </h2>
-                        <p className="text-stone-600">
+                        <p className="text-xs sm:text-base text-stone-600">
                           Found <span className="font-bold text-amber-800">{pagination.totalItems}</span> historical items
                           {getActiveFilterCount() > 0 && (
-                            <span className="text-amber-700 ml-2">
+                            <span className="text-amber-700 ml-2 hidden sm:inline">
                               • {getActiveFilterCount()} filter{getActiveFilterCount() !== 1 ? 's' : ''} applied
                             </span>
                           )}
                         </p>
                       </div>
                       <div className="text-amber-600">
-                        <span className="text-3xl">📜</span>
+                        <span className="text-2xl sm:text-3xl">📜</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Results Grid - Museum Archival Paper Background */}
+                  {/* Results Grid - Optimized for mobile performance */}
                   <div className="relative">
-                    {/* Archival Tissue Paper Background Effect */}
-                    <div className="absolute inset-0 bg-white/60 rounded-2xl border border-stone-200 shadow-inner backdrop-blur-sm"></div>
-                    <div 
-                      className="absolute inset-0 opacity-80 rounded-2xl"
-                      style={{
-                        backgroundImage: `
-                          radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.9) 20%, transparent 45%),
-                          radial-gradient(ellipse at 70% 20%, rgba(255, 255, 255, 0.7) 15%, transparent 40%),
-                          radial-gradient(ellipse at 40% 70%, rgba(255, 255, 255, 0.8) 25%, transparent 50%),
-                          radial-gradient(ellipse at 80% 80%, rgba(255, 255, 255, 0.6) 18%, transparent 42%),
-                          radial-gradient(ellipse at 10% 60%, rgba(255, 255, 255, 0.75) 22%, transparent 48%),
-                          linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 32%, rgba(255, 255, 255, 0.6) 34%, transparent 36%),
-                          linear-gradient(-45deg, transparent 28%, rgba(255, 255, 255, 0.3) 30%, rgba(255, 255, 255, 0.5) 32%, transparent 34%),
-                          linear-gradient(15deg, transparent 40%, rgba(255, 255, 255, 0.5) 42%, rgba(255, 255, 255, 0.7) 44%, transparent 46%),
-                          conic-gradient(from 30deg at 25% 25%, transparent 0deg, rgba(255, 255, 255, 0.4) 60deg, transparent 120deg),
-                          conic-gradient(from 120deg at 75% 40%, transparent 0deg, rgba(255, 255, 255, 0.3) 45deg, transparent 90deg)
-                        `,
-                        backgroundSize: '80px 60px, 120px 90px, 100px 80px, 90px 70px, 110px 85px, 200px 150px, 180px 140px, 160px 120px, 140px 140px, 120px 120px',
-                        filter: 'blur(0.5px)'
-                      }}
-                    ></div>
+                    {/* Simplified background for mobile performance */}
+                    <div className="absolute inset-0 bg-white/60 rounded-xl sm:rounded-2xl border border-stone-200 shadow-inner backdrop-blur-sm"></div>
                     
-                    {/* Additional Wrinkle Layer */}
-                    <div 
-                      className="absolute inset-0 opacity-60 rounded-2xl"
-                      style={{
-                        backgroundImage: `
-                          repeating-linear-gradient(
-                            12deg,
-                            transparent,
-                            transparent 8px,
-                            rgba(255, 255, 255, 0.6) 8px,
-                            rgba(255, 255, 255, 0.8) 9px,
-                            rgba(255, 255, 255, 0.4) 10px,
-                            transparent 12px
-                          ),
-                          repeating-linear-gradient(
-                            78deg,
-                            transparent,
-                            transparent 12px,
-                            rgba(255, 255, 255, 0.5) 12px,
-                            rgba(255, 255, 255, 0.7) 13px,
-                            transparent 15px
-                          )
-                        `
-                      }}
-                    ></div>
-                    
-                    {/* Cards Grid */}
-                    <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 p-8 z-20">
+                    {/* Cards Grid - 2 columns on mobile, 4 on desktop */}
+                    <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8 z-20">
                       {results.map((item: Item, index: number) => (
                         <div key={index} className="w-full">
                           <Card
@@ -630,7 +585,7 @@ export default function HomePage() {
                   
                   {/* Pagination component */}
                   {pagination.totalPages > 1 && (
-                    <div className="flex justify-center">
+                    <div className="flex justify-center mt-4 sm:mt-0">
                       <Pagination
                         currentPage={pagination.currentPage}
                         totalPages={pagination.totalPages}
@@ -643,16 +598,16 @@ export default function HomePage() {
                   )}
                 </>
               ) : (
-                <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-2xl shadow-lg p-16 text-center">
-                  <div className="text-6xl mb-6">🔍</div>
-                  <h3 className="text-2xl font-serif text-amber-800 mb-4">No Treasures Found</h3>
-                  <p className="text-stone-600 mb-6 max-w-md mx-auto">
+                <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center">
+                  <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🔍</div>
+                  <h3 className="text-lg sm:text-2xl font-serif text-amber-800 mb-4">No Treasures Found</h3>
+                  <p className="text-sm sm:text-base text-stone-600 mb-4 sm:mb-6 max-w-md mx-auto">
                     We couldn&apos;t find any artifacts matching your search. Try adjusting your terms or clearing some filters.
                   </p>
                   {getActiveFilterCount() > 0 && (
                     <button
                       onClick={clearAllFilters}
-                      className="px-6 py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base"
                     >
                       Clear All Filters
                     </button>
@@ -661,15 +616,15 @@ export default function HomePage() {
               )}
             </>
           ) : (
-            <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-2xl shadow-lg p-16 text-center">
-              <div className="text-6xl mb-6">🏛️</div>
-              <h3 className="text-2xl font-serif text-amber-800 mb-4">Begin Your Historical Journey</h3>
-              <p className="text-stone-600 mb-6 max-w-lg mx-auto">
+            <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center">
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🏛️</div>
+              <h3 className="text-lg sm:text-2xl font-serif text-amber-800 mb-4">Begin Your Historical Journey</h3>
+              <p className="text-sm sm:text-base text-stone-600 mb-4 sm:mb-6 max-w-lg mx-auto">
                 Enter a search term above to explore thousands of medieval artifacts, illuminated manuscripts, and historical treasures from Europe&apos;s finest collections.
               </p>
-              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-100 to-stone-100 border border-stone-300 rounded-xl">
+              <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-amber-100 to-stone-100 border border-stone-300 rounded-lg sm:rounded-xl">
                 <span className="text-amber-600 mr-2">💡</span>
-                <span className="text-stone-700 font-medium">Try searching for: {setIdea}</span>
+                <span className="text-stone-700 font-medium text-sm sm:text-base">Try searching for: {setIdea}</span>
               </div>
             </div>
           )}
