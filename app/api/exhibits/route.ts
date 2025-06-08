@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/exhibitions`;
     
+    console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
     console.log("POST to:", backendUrl);
     console.log("Request body:", body);
 
@@ -50,8 +51,8 @@ export async function POST(request: NextRequest) {
     
     const responseText = await response.text();
     console.log("Response status:", response.status);
-    console.log("Response text:", responseText);
-    
+    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+    console.log("Response text (first 500 chars):", responseText.substring(0, 500));
     const data = JSON.parse(responseText);
     
     return Response.json(data, { status: response.status });
