@@ -71,7 +71,7 @@ export async function PATCH(request: NextRequest) {
 
     const body = await request.json();
     const { searchParams } = new URL(request.url);
-    const exhibitId = searchParams.get('id');
+    const exhibitId = searchParams.get('exhibitId');
 
     if (!exhibitId) {
       return Response.json({ error: "Exhibition ID is required" }, { status: 400 });
@@ -82,11 +82,12 @@ export async function PATCH(request: NextRequest) {
       body: JSON.stringify(body)
     });
     
-    const data = await response.json();
+    const responseText = await response.text();
+    const data = JSON.parse(responseText);
     
     return Response.json(data, { status: response.status });
   } catch (error) {
-    console.error("API request error:", error);
+    console.error("PATCH API request error:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -99,7 +100,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const exhibitId = searchParams.get('id');
+    const exhibitId = searchParams.get('exhibitId');
 
     if (!exhibitId) {
       return Response.json({ error: "Exhibition ID is required" }, { status: 400 });
@@ -108,11 +109,12 @@ export async function DELETE(request: NextRequest) {
       method: 'DELETE'
     });
     
-    const data = await response.json();
+    const responseText = await response.text();
+    const data = JSON.parse(responseText);
     
     return Response.json(data, { status: response.status });
   } catch (error) {
-    console.error("API request error:", error);
+    console.error("DELETE API request error:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
-}
+}1
