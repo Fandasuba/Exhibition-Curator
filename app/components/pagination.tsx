@@ -1,6 +1,6 @@
 import React from "react";
 
-interface Pagination{
+interface Pagination {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
@@ -26,7 +26,6 @@ export default function Pagination({
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = startPage + maxPagesToShow - 1;
     
-    
     if (endPage > totalPages) {
       endPage = totalPages;
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
@@ -39,24 +38,30 @@ export default function Pagination({
     return pages;
   };
 
-return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 mb-4 p-4 bg-gray-800 rounded border border-gray-600">
-      <div className="flex items-center mb-2 sm:mb-0">
-        <span className="text-sm text-gray-300">
-          Showing page <span className="text-blue-400 font-medium">{currentPage}</span> of <span className="text-blue-400 font-medium">{totalPages}</span>
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 mb-4 p-6 bg-white/80 backdrop-blur border border-stone-300 rounded-2xl shadow-lg">
+      
+      {/* Museum-style decorative header */}
+      <div className="absolute top-2 left-4 text-xs text-amber-700 font-mono opacity-60">
+        PAGINATION CONTROLS • ARCHIVAL NAVIGATION
+      </div>
+      
+      <div className="flex items-center mb-2 sm:mb-0 mt-4 sm:mt-0">
+        <span className="text-sm text-stone-700 font-serif">
+          Manuscript <span className="text-amber-700 font-medium">α {currentPage}</span> of <span className="text-amber-700 font-medium">{totalPages} Ω</span>
         </span>
        
         {onPageSizeChange && (
-          <div className="ml-4">
-            <label className="text-sm text-gray-300 mr-2">Items per page:</label>
+          <div className="ml-6">
+            <label className="text-sm text-stone-700 mr-3 font-serif">Items per folio:</label>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
               disabled={disabled}
-              className="border border-gray-600 rounded py-1 px-2 text-sm bg-gray-700 text-gray-300 hover:border-blue-500 focus:border-blue-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="border border-stone-300 rounded-lg py-2 px-3 text-sm bg-stone-50 text-stone-800 hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
             >
               {pageSizeOptions.map((size) => (
-                <option key={size} value={size} className="bg-gray-700">
+                <option key={size} value={size} className="bg-stone-50">
                   {size}
                 </option>
               ))}
@@ -65,52 +70,66 @@ return (
         )}
       </div>
      
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-2">
+        {/* First Page */}
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1 || disabled}
-          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="px-3 py-2 rounded-lg border border-stone-300 bg-stone-50 text-stone-700 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-serif text-sm shadow-sm"
+          title="First manuscript"
         >
-          &laquo;
+          ⟪
         </button>
+        
+        {/* Previous Page */}
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1 || disabled}
-          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="px-3 py-2 rounded-lg border border-stone-300 bg-stone-50 text-stone-700 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-serif text-sm shadow-sm"
+          title="Previous manuscript"
         >
-          &lsaquo;
+          ⟨
         </button>
        
+        {/* Page Numbers */}
         {getPageNumbers().map((page) => (
           <button
             key={page}
             onClick={() => onPageChange(page)}
             disabled={disabled}
-            className={`px-3 py-1 rounded border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`px-3 py-2 rounded-lg border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-serif text-sm shadow-sm ${
               currentPage === page
-                ? 'bg-blue-600 text-white border-blue-500 shadow-md'
-                : 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400'
+                ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-amber-50 border-amber-500 shadow-md transform scale-105'
+                : 'bg-stone-50 text-stone-700 border-stone-300 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800'
             }`}
           >
             {page}
           </button>
         ))}
        
+        {/* Next Page */}
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages || disabled}
-          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="px-3 py-2 rounded-lg border border-stone-300 bg-stone-50 text-stone-700 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-serif text-sm shadow-sm"
+          title="Next manuscript"
         >
-          &rsaquo;
+          ⟩
         </button>
+        
+        {/* Last Page */}
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages || disabled}
-          className="px-3 py-1 rounded border border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-blue-500 hover:text-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          className="px-3 py-2 rounded-lg border border-stone-300 bg-stone-50 text-stone-700 hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-serif text-sm shadow-sm"
+          title="Last manuscript"
         >
-          &raquo;
+          ⟫
         </button>
       </div>
+      
+      {/* Decorative elements */}
+      <div className="absolute bottom-1 right-3 text-amber-600 opacity-30 text-xs">⚜</div>
     </div>
   );
 }
