@@ -1,22 +1,26 @@
 services:
   nextjs:
-    build: .
+    build: 
+      context: .
+      args:
+        SESSION_SECRET: ${SESSION_SECRET}
     container_name: exhibition-nextjs
     ports:
       - "3000:3000"
     environment:
-      # Database connection for container-to-container communication
-      DB_USER: craig-unix
-      DB_HOST: exhibition-postgres
-      DB_NAME: exhibition_curator
-      DB_USER_PASSWORD: password
-      DB_PORT: 5432
-      # Alternative single connection string format
-      DATABASE_URL: postgresql://craig-unix:password@exhibition-postgres:5432/exhibition_curator
+      EUROPEANA_API_KEY: ${EUROPEANA_API_KEY}
+      DB_USER: ${DB_USER}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER_PASSWORD: ${DB_USER_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      NEXT_DOCKER_API_URL: ${NEXT_DOCKER_API_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      NODE_ENV: ${NODE_ENV}
     networks:
       - exhibition-network
     restart: unless-stopped
-
 networks:
   exhibition-network:
     external: true
