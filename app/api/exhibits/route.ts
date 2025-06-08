@@ -8,10 +8,18 @@ export async function GET(request: NextRequest) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId') || session.userId;
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exhibitions?userId=${userId}`);
-    const data = await response.json();
+    const userId = session.userId;
+    const backendUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/exhibitions?userId=${userId}`;
+    
+    console.log("NEXT_PUBLIC_API_URL:", process.env.NEXT_PUBLIC_API_URL);
+    console.log("Full backend URL:", backendUrl);
+
+    const response = await fetch(backendUrl);
+    const responseText = await response.text();
+    
+    console.log("Response status:", response.status);
+    console.log("Response text:", responseText);
+    const data = JSON.parse(responseText);
     
     return Response.json(data, { status: response.status });
   } catch (error) {
