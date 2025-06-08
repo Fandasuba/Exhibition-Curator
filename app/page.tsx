@@ -506,30 +506,31 @@ export default function Home() {
       throw new Error(`Failed to update exhibit: ${response.statusText}`);
     }
 
-    // Update the exhibitions list first
-    await updateExhibits();
-    
-    // Then refresh the items display for the current exhibition
+    setExhibitions(prev => 
+      prev.map(ex => 
+        ex.id === exhibitionId 
+          ? { ...ex, saveditems: updatedSavedItems }
+          : ex
+      )
+    );
+
     if (selectedExhibition === exhibitionId) {
-      const updatedExhibition = exhibitions.find(ex => ex.id === exhibitionId);
-      if (updatedExhibition && updatedExhibition.saveditems) {
-        const currentSort = itemsSort[exhibitionId] || 'title-asc';
-        const sortedItems = sortItems(updatedExhibition.saveditems, currentSort) as SavedItem[];
-        
-        setExhibitionItems(prev => ({
-          ...prev,
-          [exhibitionId]: sortedItems
-        }));
-        
-        setItemsPagination(prev => ({
-          ...prev,
-          [exhibitionId]: {
-            ...prev[exhibitionId],
-            totalItems: sortedItems.length,
-            totalPages: Math.ceil(sortedItems.length / (prev[exhibitionId]?.pageSize || 8))
-          }
-        }));
-      }
+      const currentSort = itemsSort[exhibitionId] || 'title-asc';
+      const sortedItems = sortItems(updatedSavedItems, currentSort) as SavedItem[];
+      
+      setExhibitionItems(prev => ({
+        ...prev,
+        [exhibitionId]: sortedItems
+      }));
+      
+      setItemsPagination(prev => ({
+        ...prev,
+        [exhibitionId]: {
+          ...prev[exhibitionId],
+          totalItems: sortedItems.length,
+          totalPages: Math.ceil(sortedItems.length / (prev[exhibitionId]?.pageSize || 8))
+        }
+      }));
     }
     
   } catch (error) {
