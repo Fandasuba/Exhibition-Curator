@@ -299,21 +299,15 @@ export default function Home() {
   }, [exhibitionsLoading]);
 
   // Item pagination handlers with direct parameter passing
-  const handleItemsPageChange = async (exhibitionId: string, page: number): Promise<void> => {
-    if (itemsLoading[exhibitionId]) return;
-    
-    // Update state first
-    setItemsPagination(prev => ({
-      ...prev,
-      [exhibitionId]: {
-        ...prev[exhibitionId],
-        currentPage: page
-      }
-    }));
-
-    // Fetch with the new page directly
-    await fetchExhibitionItems(exhibitionId, page);
-  };
+ const handleItemsPageChange = async (exhibitionId: string, page: number): Promise<void> => {
+  setItemsPagination(prev => ({
+    ...prev,
+    [exhibitionId]: {
+      ...prev[exhibitionId],
+      currentPage: page
+    }
+  }));
+};
 
   const handleItemsPageSizeChange = async (exhibitionId: string, size: number): Promise<void> => {
     if (itemsLoading[exhibitionId]) return;
@@ -355,35 +349,28 @@ export default function Home() {
 
   // Exhibition click handler
   const handleExhibitionClick = async (exhibitionId: string) => {
-    const wasSelected = selectedExhibition === exhibitionId;
-    setSelectedExhibition(wasSelected ? null : exhibitionId);
-    
-    if (!wasSelected) {
-      // Initialize pagination if not exists
-      if (!itemsPagination[exhibitionId]) {
-        setItemsPagination(prev => ({
-          ...prev,
-          [exhibitionId]: {
-            currentPage: 1,
-            pageSize: 8,
-            totalPages: 1,
-            totalItems: 0
-          }
-        }));
-      }
-      
-      // Initialize sort if not exists
-      if (!itemsSort[exhibitionId]) {
-        setItemsSort(prev => ({
-          ...prev,
-          [exhibitionId]: 'title-asc'
-        }));
-      }
-      
-      // Fetch items with explicit parameters
-      await fetchExhibitionItems(exhibitionId, 1, 8, 'title-asc');
+  const wasSelected = selectedExhibition === exhibitionId;
+  setSelectedExhibition(wasSelected ? null : exhibitionId);
+  
+  if (!wasSelected) {
+    const exhibition = exhibitions.find(ex => ex.id === exhibitionId);
+    if (exhibition && exhibition.saveditems) {
+      setExhibitionItems(prev => ({
+        ...prev,
+        [exhibitionId]: exhibition.saveditems || []
+      }));
+      setItemsPagination(prev => ({
+        ...prev,
+        [exhibitionId]: {
+          currentPage: 1,
+          pageSize: 8,
+          totalPages: Math.ceil((exhibition.saveditems?.length || 0) / 8),
+          totalItems: exhibition.saveditems?.length || 0
+        }
+      }));
     }
-  };
+  }
+};
 
   // Auth handlers
   const handleCreateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -551,17 +538,20 @@ export default function Home() {
   };
 
   // Helper function for paginated items
-  const getPaginatedItems = (exhibitionId: string) => {
-    const items = exhibitionItems[exhibitionId] || [];
-    const pagination = itemsPagination[exhibitionId] || {
-      currentPage: 1,
-      pageSize: 8,
-      totalPages: 1,
-      totalItems: 0
-    };
-    
-    return { items, pagination };
+const getPaginatedItems = (exhibitionId: string) => {
+  const allItems = exhibitionItems[exhibitionId] || [];
+  const pagination = itemsPagination[exhibitionId] || {
+    currentPage: 1,
+    pageSize: 8,
+    totalPages: 1,
+    totalItems: 0
   };
+  const startIndex = (pagination.currentPage - 1) * pagination.pageSize;
+  const endIndex = startIndex + pagination.pageSize;
+  const paginatedItems = allItems.slice(startIndex, endIndex);
+  
+  return { items: paginatedItems, pagination };
+};
 
   if (loading) {
     return (
