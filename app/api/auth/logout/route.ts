@@ -1,4 +1,3 @@
-// app/api/auth/logout/route.js
 import { deleteSession } from "@/app/lib/session";
 
 export async function POST() {
