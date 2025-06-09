@@ -4,19 +4,12 @@ interface SortableItem {
   provider?: string | null;
 }
 
-/**
- * Safely sorts an array of items based on the specified sort option
- * Handles null, undefined, and non-string values gracefully
- */
 export function sortItems(items: SortableItem[], sortBy: string): SortableItem[] {
-  // Create a copy to avoid mutating the original array
   const sorted = [...items];
-  
-  // Helper function to safely convert values to strings for comparison
   const safeString = (value: string | null | undefined): string => {
     if (value === null || value === undefined) return '';
     if (typeof value !== 'string') return '';
-    return value.trim(); // Also trim whitespace for better sorting
+    return value.trim();
   };
  
   switch (sortBy) {
@@ -57,9 +50,8 @@ export function sortItems(items: SortableItem[], sortBy: string): SortableItem[]
         return bVal.localeCompare(aVal, undefined, { numeric: true, sensitivity: 'base' });
       });
     default:
-      return sorted; // Return original order if sort option is not recognized
+      return sorted;
   }
 }
 
-// Export the interface so other files can use it
 export type { SortableItem };

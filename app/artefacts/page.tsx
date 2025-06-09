@@ -211,81 +211,97 @@ export default function HomePage() {
   }, [apiSource, filters]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-stone-100 via-amber-50 to-stone-200">
+    <main className="min-h-screen bg-gradient-to-br from-stone-100 via-amber-50 to-stone-200" aria-label="Historical archives search page">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
         <div className="text-center mb-6 sm:mb-12">
+          <header>
           <h1 className="text-3xl sm:text-5xl font-serif text-amber-800 mb-2 sm:mb-4 drop-shadow-sm">
-            🏛️ <span className="sm:hidden">Historical Europe</span>
+            <span className="sm:hidden">Historical Europe</span>
             <span className="hidden sm:inline">Explore Historical Europe</span>
           </h1>
           <p className="text-sm sm:text-lg text-stone-700 max-w-2xl mx-auto px-2">
             Discover rare manuscripts, artifacts, and treasures from Europe&apos;s greatest archives
           </p>
+          </header>
         </div>
         
         {/* Search Controls Section*/}
-        <section className="mb-6 sm:mb-12">
-          <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-4 sm:px-8 py-4 sm:py-6">
-              <h2 className="text-lg sm:text-2xl font-serif text-amber-50 mb-1 sm:mb-2">Search Archives</h2>
-              <p className="text-xs sm:text-base text-amber-100">Access millions of historical documents and artifacts</p>
+    <section className="mb-6 sm:mb-12">
+      <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+        <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-4 sm:px-8 py-4 sm:py-6">
+          <h2 className="text-lg sm:text-2xl font-serif text-amber-50 mb-1 sm:mb-2">Search Archives</h2>
+          <p className="text-xs sm:text-base text-amber-100">Access millions of historical documents and artifacts</p>
+        </div>
+      
+        <div className="p-4 sm:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div className="lg:col-span-3">
+              <label 
+                htmlFor="archive-selections"
+                className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+              >
+                Archive Source
+              </label>
+              <select
+                id="archive-selections"
+                value={apiSource}
+                onChange={(e) => setApiSource(e.target.value)}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg sm:rounded-xl bg-stone-50 text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all text-sm sm:text-base"
+              >
+                <option value="europeana">Europeana Collection</option>
+                <option value="digital-bodleian-oxford">Oxford Digital Manuscripts</option>
+              </select>
             </div>
-            
-            <div className="p-4 sm:p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                <div className="lg:col-span-3">
-                  <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
-                    Archive Source
-                  </label>
-                  <select
-                    value={apiSource}
-                    onChange={(e) => setApiSource(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg sm:rounded-xl bg-stone-50 text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all text-sm sm:text-base"
-                  >
-                    <option value="europeana">Europeana Collection</option>
-                    <option value="digital-bodleian-oxford">Oxford Digital Manuscripts</option>
-                  </select>
-                </div>
-                
-                {/* Search Input */}
-                <div className="lg:col-span-7">
-                  <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
-                    Search Terms
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={setIdea}
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg sm:rounded-xl bg-stone-50 text-stone-800 placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all text-sm sm:text-base"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSearch();
-                    }}
-                  />
-                </div>
-                
-                {/* Search Button */}
-                <div className="lg:col-span-2 flex items-end">
-                  <button 
-                    onClick={() => handleSearch()} 
-                    className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-amber-50 mr-2"></div>
-                        <span className="hidden sm:inline">Searching...</span>
-                        <span className="sm:hidden">...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center">
-                        <span className="mr-1 sm:mr-2">🔍</span>
-                        Search
-                      </div>
-                    )}
-                  </button>
-                </div>
-              </div>
+          
+            {/* Search Input */}
+            <div className="lg:col-span-7">
+              <label 
+                htmlFor="search-terms"
+                className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+              >
+                Search Terms
+              </label>
+              <input
+                id="search-terms"
+                type="text"
+                placeholder={setIdea}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-stone-300 rounded-lg sm:rounded-xl bg-stone-50 text-stone-800 placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-sm transition-all text-sm sm:text-base"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                aria-describedby="search-help"
+              />
+              <p id="search-help" className="sr-only">
+                Enter keywords to search for historical artifacts and documents
+              </p>
+            </div>
+          
+            {/* Search Button */}
+            <div className="lg:col-span-2 flex items-end">
+              <button
+                onClick={() => handleSearch()}
+                className="w-full px-4 sm:px-6 py-2 sm:py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                disabled={isLoading}
+                aria-controls="search-results"
+                aria-label={isLoading ? "Searching, please wait" : "Search archives"}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-amber-50 mr-2" aria-hidden="true"></div>
+                    <span className="hidden sm:inline">Searching...</span>
+                    <span className="sm:hidden">...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <span className="mr-1 sm:mr-2" aria-hidden="true">🔍</span>
+                    Search
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
 
               {/* Advanced Filters Toggle */}
               <div className="border-t border-stone-300 pt-4 sm:pt-6">
@@ -293,20 +309,23 @@ export default function HomePage() {
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                   className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-stone-600 hover:bg-stone-700 text-stone-50 rounded-lg sm:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 text-sm sm:text-base"
                   disabled={apiSource !== 'europeana'}
+                  aria-controls="advanced-filters"
+                  aria-expanded={showAdvancedFilters}
+                  aria-label="Show advanced search filters. Only available for Europeana searches"
                 >
-                  <span className="text-base sm:text-lg">⚙️</span>
+                  <span className="text-base sm:text-lg" aria-hidden="true">⚙️</span>
                   <span className="font-medium">
                     <span className="sm:hidden">Filters</span>
                     <span className="hidden sm:inline">Advanced Filters</span>
                   </span>
                   {apiSource !== 'europeana' && <span className="text-xs opacity-75 hidden sm:inline">(Europeana only)</span>}
                   {getActiveFilterCount() > 0 && apiSource === 'europeana' && (
-                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold" aria-label={`${getActiveFilterCount()} active filters`}>
                       {getActiveFilterCount()}
                     </span>
                   )}
                   {apiSource === 'europeana' && (
-                    <span className={`transition-transform duration-200 ${showAdvancedFilters ? 'rotate-180' : ''}`}>
+                    <span className={`transition-transform duration-200 ${showAdvancedFilters ? 'rotate-180' : ''}`} aria-hidden="true">
                       ▼
                     </span>
                   )}
@@ -314,13 +333,20 @@ export default function HomePage() {
               </div>
 
               {showAdvancedFilters && apiSource === 'europeana' && (
-                <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-stone-50 to-amber-50 rounded-lg sm:rounded-xl border border-stone-300">
+                <div 
+                  id="advanced-filters"
+                  className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-stone-50 to-amber-50 rounded-lg sm:rounded-xl border border-stone-300"
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                      <label 
+                        htmlFor="media-type-filter"
+                        className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+                      >
                         Media Type
                       </label>
                       <select
+                        id="media-type-filter"
                         value={filters.mediaType}
                         onChange={(e) => handleFilterChange('mediaType', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
@@ -335,43 +361,55 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                      <label 
+                        htmlFor="copyright-filter"
+                        className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+                      >
                         Copyright Status
                       </label>
                       <select
+                        id="copyright-filter"
                         value={filters.reusability}
                         onChange={(e) => handleFilterChange('reusability', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">All Rights</option>
-                        <option value="open">✅ Open (Free to reuse)</option>
-                        <option value="restricted">⚠️ Restricted (Some limitations)</option>
-                        <option value="permission">🔒 Permission Required</option>
+                        <option value="open"> Open (Free to reuse)</option>
+                        <option value="restricted"> Restricted (Some limitations)</option>
+                        <option value="permission"> Permission Required</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                      <label 
+                        htmlFor="image-quality-filter"
+                        className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+                      >
                         Image Quality
                       </label>
                       <select
+                        id="image-quality-filter"
                         value={filters.imageSize}
                         onChange={(e) => handleFilterChange('imageSize', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                       >
                         <option value="">Any Size</option>
-                        <option value="small">📱 Small (&lt; 0.5MP)</option>
-                        <option value="medium">💻 Medium (0.5-1MP)</option>
-                        <option value="large">🖥️ Large (1-4MP)</option>
-                        <option value="extra_large">📺 Extra Large (&gt; 4MP)</option>
+                        <option value="small"> Small (&lt; 0.5MP)</option>
+                        <option value="medium"> Medium (0.5-1MP)</option>
+                        <option value="large"> Large (1-4MP)</option>
+                        <option value="extra_large"> Extra Large (&gt; 4MP)</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                      <label 
+                        htmlFor="country-filter"
+                        className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+                      >
                         Country
                       </label>
                       <select
+                        id="country-filter"
                         value={filters.country}
                         onChange={(e) => handleFilterChange('country', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
@@ -393,10 +431,14 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                      <label 
+                        htmlFor="language-filter"
+                        className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+                      >
                         Language
                       </label>
                       <select
+                        id="language-filter"
                         value={filters.language}
                         onChange={(e) => handleFilterChange('language', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
@@ -416,10 +458,14 @@ export default function HomePage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                      <label 
+                        htmlFor="color-filter"
+                        className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3"
+                      >
                         Dominant Color
                       </label>
                       <select
+                        id="color-filter"
                         value={filters.colourPalette}
                         onChange={(e) => handleFilterChange('colourPalette', e.target.value)}
                         className="w-full px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
@@ -440,57 +486,76 @@ export default function HomePage() {
                   </div>
 
                   <div className="mt-6 sm:mt-8">
-                    <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
-                      Year Range
-                    </label>
-                    <div className="mb-3 sm:mb-4 p-3 sm:p-4 bg-amber-100 border-l-4 border-amber-600 rounded-lg">
-                      <div className="flex items-start">
-                        <span className="text-amber-700 mr-2 text-base sm:text-lg">💡</span>
-                        <div>
-                          <p className="text-xs sm:text-sm text-amber-800 font-medium">Historical Dating Tip</p>
-                          <p className="text-xs text-amber-700 mt-1">
-                            Enter negative years for BCE dates (e.g., -500 = 500 BCE)
-                          </p>
+                    <fieldset>
+                      <legend className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
+                        Year Range
+                      </legend>
+                      <div className="mb-3 sm:mb-4 p-3 sm:p-4 bg-amber-100 border-l-4 border-amber-600 rounded-lg" id="year-range-help">
+                        <div className="flex items-start">
+                          <span className="text-amber-700 mr-2 text-base sm:text-lg" aria-hidden="true">💡</span>
+                          <div>
+                            <p className="text-xs sm:text-sm text-amber-800 font-medium">Historical Dating Tip</p>
+                            <p className="text-xs text-amber-700 mt-1">
+                              Enter negative years for BCE dates (e.g., -500 = 500 BCE)
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <input
-                        type="number"
-                        placeholder="From year"
-                        value={filters.yearRange.from}
-                        onChange={(e) => handleYearRangeChange('from', e.target.value)}
-                        className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
-                      />
-                      <input
-                        type="number"
-                        placeholder="To year"
-                        value={filters.yearRange.to}
-                        onChange={(e) => handleYearRangeChange('to', e.target.value)}
-                        className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
-                      />
-                    </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="year-from" className="sr-only">From year</label>
+                          <input
+                            id="year-from"
+                            type="number"
+                            placeholder="From year"
+                            value={filters.yearRange.from}
+                            onChange={(e) => handleYearRangeChange('from', e.target.value)}
+                            className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
+                            aria-describedby="year-range-help"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="year-to" className="sr-only">To year</label>
+                          <input
+                            id="year-to"
+                            type="number"
+                            placeholder="To year"
+                            value={filters.yearRange.to}
+                            onChange={(e) => handleYearRangeChange('to', e.target.value)}
+                            className="px-3 py-2 border border-stone-300 rounded-lg bg-white text-stone-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-stone-500"
+                            aria-describedby="year-range-help"
+                          />
+                        </div>
+                      </div>
+                    </fieldset>
                   </div>
 
                   <div className="mt-6 sm:mt-8 grid grid-cols-1 gap-3 sm:gap-4">
-                    <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={filters.hasMedia}
-                        onChange={(e) => handleFilterChange('hasMedia', e.target.checked)}
-                        className="w-4 h-4 text-amber-600 bg-white border-stone-300 rounded focus:ring-amber-500"
-                      />
-                      <span>Has downloadable media</span>
-                    </label>
-                    <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={filters.hasThumbnail}
-                        onChange={(e) => handleFilterChange('hasThumbnail', e.target.checked)}
-                        className="w-4 h-4 text-amber-600 bg-white border-stone-300 rounded focus:ring-amber-500"
-                      />
-                      <span>Has thumbnail image</span>
-                    </label>
+                    <div>
+                      <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
+                        <input
+                          id="has-media-checkbox"
+                          type="checkbox"
+                          checked={filters.hasMedia}
+                          onChange={(e) => handleFilterChange('hasMedia', e.target.checked)}
+                          className="w-4 h-4 text-amber-600 bg-white border-stone-300 rounded focus:ring-amber-500"
+                        />
+                        <span>Has downloadable media</span>
+                      </label>
+                    </div>
+                    
+                    <div>
+                      <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
+                        <input
+                          id="has-thumbnail-checkbox"
+                          type="checkbox"
+                          checked={filters.hasThumbnail}
+                          onChange={(e) => handleFilterChange('hasThumbnail', e.target.checked)}
+                          className="w-4 h-4 text-amber-600 bg-white border-stone-300 rounded focus:ring-amber-500"
+                        />
+                        <span>Has thumbnail image</span>
+                      </label>
+                    </div>
                   </div>
 
                   {getActiveFilterCount() > 0 && (
@@ -498,6 +563,7 @@ export default function HomePage() {
                       <button
                         onClick={clearAllFilters}
                         className="px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base"
+                        aria-label={`Clear all ${getActiveFilterCount()} active filters`}
                       >
                         Clear All Filters ({getActiveFilterCount()})
                       </button>
@@ -510,11 +576,14 @@ export default function HomePage() {
         </section>
 
         {/* Results Section */}
-        <section>
+        <section id="search-results" aria-label="Search results">
           {isLoading ? (
-            <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center">
+            <div 
+              className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center"
+              aria-live="polite"
+            >
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-amber-100 rounded-full mb-4 sm:mb-6">
-                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-amber-700"></div>
+                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-amber-700" aria-hidden="true"></div>
               </div>
               <h3 className="text-lg sm:text-xl font-serif text-amber-800 mb-2">Searching Archives</h3>
               <p className="text-sm sm:text-base text-stone-600">Discovering historical treasures for you...</p>
@@ -529,28 +598,38 @@ export default function HomePage() {
                         <h2 className="text-lg sm:text-2xl font-serif text-amber-800 mb-1">
                           Discovery Results
                         </h2>
-                        <p className="text-xs sm:text-base text-stone-600">
+                        <p 
+                          className="text-xs sm:text-base text-stone-600"
+                          aria-live="polite"
+                          aria-atomic="true"
+                        >
                           Found <span className="font-bold text-amber-800">{pagination.totalItems}</span> historical items
                           {getActiveFilterCount() > 0 && (
                             <span className="text-amber-700 ml-2 hidden sm:inline">
                               • {getActiveFilterCount()} filter{getActiveFilterCount() !== 1 ? 's' : ''} applied
                             </span>
                           )}
+                          <span className="sr-only">
+                            , showing page {pagination.currentPage} of {pagination.totalPages}
+                          </span>
                         </p>
                       </div>
                       <div className="text-amber-600">
-                        <span className="text-2xl sm:text-3xl">📜</span>
+                        <span className="text-2xl sm:text-3xl" aria-hidden="true">📜</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Results Grid */}
                   <div className="relative">
-                    
-                    <div className="absolute inset-0 bg-white/60 rounded-xl sm:rounded-2xl border border-stone-200 shadow-inner backdrop-blur-sm"></div>
-                    <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8 z-20">
+                    <div className="absolute inset-0 bg-white/60 rounded-xl sm:rounded-2xl border border-stone-200 shadow-inner backdrop-blur-sm" aria-hidden="true"></div>
+                    <ul 
+                      role="list" 
+                      aria-label="Historical artifacts found"
+                      className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8 z-20"
+                    >
                       {results.map((item: Item, index: number) => (
-                        <div key={index} className="w-full">
+                        <li key={index} className="w-full">
                           <Card
                             title={item.title}
                             description={item.description}
@@ -560,9 +639,9 @@ export default function HomePage() {
                             image={item.edmPreview}
                             showAddButton={true}
                           />
-                        </div>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                   
                   {pagination.totalPages > 1 && (
@@ -574,21 +653,28 @@ export default function HomePage() {
                         pageSize={pagination.limit}
                         onPageSizeChange={handlePageSizeChange}
                         pageSizeOptions={[10, 20, 50]}
+                        aria-controls="search-results"
+                        aria-label="Search results pagination"
                       />
                     </div>
                   )}
                 </>
               ) : (
-                <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center">
-                  <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🔍</div>
+                <div 
+                  className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div className="text-4xl sm:text-6xl mb-4 sm:mb-6" aria-hidden="true">🔍</div>
                   <h3 className="text-lg sm:text-2xl font-serif text-amber-800 mb-4">No Treasures Found</h3>
                   <p className="text-sm sm:text-base text-stone-600 mb-4 sm:mb-6 max-w-md mx-auto">
-                    We couldn&apos;t find any artifacts matching your search. Try adjusting your terms or clearing some filters.
+                    We couldn't find any artifacts matching your search. Try adjusting your terms or clearing some filters.
                   </p>
                   {getActiveFilterCount() > 0 && (
                     <button
                       onClick={clearAllFilters}
                       className="px-4 sm:px-6 py-2 sm:py-3 bg-amber-700 hover:bg-amber-800 text-amber-50 rounded-lg sm:rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base"
+                      aria-label={`Clear all ${getActiveFilterCount()} active filters`}
                     >
                       Clear All Filters
                     </button>
@@ -597,15 +683,20 @@ export default function HomePage() {
               )}
             </>
           ) : (
-            <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center">
-              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🏛️</div>
+            <div 
+              className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg p-8 sm:p-16 text-center"
+              role="status"
+            >
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6" aria-hidden="true">🏛️</div>
               <h3 className="text-lg sm:text-2xl font-serif text-amber-800 mb-4">Begin Your Historical Journey</h3>
               <p className="text-sm sm:text-base text-stone-600 mb-4 sm:mb-6 max-w-lg mx-auto">
-                Enter a search term above to explore thousands of medieval artifacts, illuminated manuscripts, and historical treasures from Europe&apos;s finest collections.
+                Enter a search term above to explore thousands of medieval artifacts, illuminated manuscripts, and historical treasures from Europe's finest collections.
               </p>
               <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-amber-100 to-stone-100 border border-stone-300 rounded-lg sm:rounded-xl">
-                <span className="text-amber-600 mr-2">💡</span>
-                <span className="text-stone-700 font-medium text-sm sm:text-base">Try searching for: {setIdea}</span>
+                <span className="text-amber-600 mr-2" aria-hidden="true">💡</span>
+                <span className="text-stone-700 font-medium text-sm sm:text-base">
+                  Try searching for: {setIdea}
+                </span>
               </div>
             </div>
           )}

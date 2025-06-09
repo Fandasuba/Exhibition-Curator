@@ -31,7 +31,6 @@ export async function GET(request: Request) {
   const validatedLimit = Math.min(Math.max(limit, 5), 50);
   const start = (page - 1) * validatedLimit + 1;
   
-  // Get all query refinement (filter) parameters
   const qfParams = searchParams.getAll('qf');
   
   const apiKey = process.env.EUROPEANA_API_KEY;
@@ -40,27 +39,23 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'API key not configured' }, { status: 500 });
   }
 
-  // Build the base URL with required parameters
   const baseParams = new URLSearchParams({
     query: query,
     rows: validatedLimit.toString(),
     start: start.toString(),
     wskey: apiKey,
-    profile: 'rich' // Get more detailed metadata
+    profile: 'rich'
   });
 
-  // Add query refinements (filters) if provided
   qfParams.forEach(filter => {
     baseParams.append('qf', filter);
   });
 
-  // Add some default useful parameters
-  baseParams.append('media', 'true'); // Only items with media
-  baseParams.append('thumbnail', 'true'); // Only items with thumbnails
+  baseParams.append('media', 'true');
+  baseParams.append('thumbnail', 'true');
 
   const apiUrl = `https://api.europeana.eu/record/v2/search.json?${baseParams.toString()}`;
-  
-  console.log('Europeana API URL:', apiUrl);
+
  
   try {
     const response = await fetch(apiUrl);
@@ -69,15 +64,8 @@ export async function GET(request: Request) {
     }
    
     const data = await response.json();
-    
-    console.log(data.items, "This is the data.items in Europeana");
-    
-    // Enhanced mapping with better error handling and more metadata
     const items: FrontendItem[] = data.items?.map((item: EuropeanaItem) => {
-      // Helper function to safely get first array element
       const getFirst = (arr: string[] | undefined) => arr && arr.length > 0 ? arr[0] : '';
-      
-      // Enhanced author information
       let authorInfo = '';
       const creator = getFirst(item.dcCreator);
       const country = getFirst(item.country);
@@ -97,7 +85,6 @@ export async function GET(request: Request) {
         edmPreview: getFirst(item.edmPreview) || '',
         description: getFirst(item.dcDescription) || 'No Description provided by Collection',
         author: authorInfo,
-        // You can add more metadata here if needed
         type: item.type || '',
         year: getFirst(item.year),
         rights: getFirst(item.rights),
@@ -118,9 +105,7 @@ export async function GET(request: Request) {
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1
       },
-      // Include facets for potential future use
       facets: data.facets || [],
-      // Include applied filters for debugging
       appliedFilters: qfParams
     });
   } catch (error) {
