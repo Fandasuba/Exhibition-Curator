@@ -788,7 +788,7 @@ const getPaginatedItems = (exhibitionId: string) => {
               </button>
             </div>
             <div className="max-w-md mx-auto p-4 bg-amber-100/50 border border-amber-300 rounded-lg text-center">
-              <p className="text-amber-800 text-sm">Don't want to login? Head over to Browse Collection button in the nav bar or press the find Artefacts button below to try the app out!</p>
+              <p className="text-amber-800 text-sm">Don&apos;t want to login? Head over to Browse Collection button in the nav bar or press the find Artefacts button below to try the app out!</p>
             </div>
           </section>
         )}
