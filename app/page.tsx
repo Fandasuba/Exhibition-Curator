@@ -766,12 +766,12 @@ const getPaginatedItems = (exhibitionId: string) => {
 
         {/* Auth Section */}
         {!isLoggedIn && (
-          <section 
+          <section
             className="mb-6 p-4 bg-white/50 backdrop-blur-sm border border-amber-300 rounded-lg"
             aria-label="Authentication section"
           >
-            <h2 className="text-xl mb-4 text-amber-900 font-semibold">Authentication</h2>
-            <div className="space-x-3" role="group" aria-label="Authentication options">
+            <h2 className="text-xl mb-4 text-amber-900 font-semibold text-center">Authentication</h2>
+            <div className="flex justify-center space-x-3 mb-4" role="group" aria-label="Authentication options">
               <button
                 onClick={() => setShowLoginModal(true)}
                 className="px-6 py-2 bg-amber-700 hover:bg-amber-600 text-white rounded border border-amber-600 hover:border-amber-500 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
@@ -786,6 +786,9 @@ const getPaginatedItems = (exhibitionId: string) => {
               >
                 Create Account
               </button>
+            </div>
+            <div className="max-w-md mx-auto p-4 bg-amber-100/50 border border-amber-300 rounded-lg text-center">
+              <p className="text-amber-800 text-sm">Don't want to login? Head over to Browse Collection button in the nav bar or press the find Artefacts button below to try the app out!</p>
             </div>
           </section>
         )}
