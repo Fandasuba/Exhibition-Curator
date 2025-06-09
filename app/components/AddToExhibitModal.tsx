@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react'; // Add useCallback here
 import { useUser } from '../user-context';
 
 interface ExhibitionItem {
@@ -37,14 +37,32 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
   const firstFocusableRef = useRef<HTMLSelectElement>(null);
   const lastFocusableRef = useRef<HTMLButtonElement>(null);
 
+  // Define fetchExhibitions BEFORE using it
+  const fetchExhibitions = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/exhibits?userId=${user.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch exhibitions');
+      }
+      const result = await response.json();
+      const exhibitions: Exhibition[] = result.data || result;
+      setExhibitions(exhibitions);
+    } catch (error) {
+      console.error('Error fetching exhibitions:', error);
+      setMessage('Failed to load exhibitions');
+      setMessageType('error');
+    }
+  }, [user]);
+
   useEffect(() => {
     if (isOpen && isLoggedIn && user) {
       fetchExhibitions();
     }
-  }, [isOpen, isLoggedIn, user]);
+  }, [isOpen, isLoggedIn, user, fetchExhibitions]);
 
-
-  // Manages tabbing only in the modal for accessibility.
+  // Focus management and keyboard handling
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
@@ -68,8 +86,9 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
           if (focusableElements && focusableElements.length > 0) {
             const firstElement = focusableElements[0] as HTMLElement;
             const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-            // controlls for shifting to to first and thento the last element. Apparently its common practice???
+
             if (e.shiftKey) {
+              // Shift + Tab keybinds. Appanrently its standard practice??
               if (document.activeElement === firstElement) {
                 e.preventDefault();
                 lastElement.focus();
@@ -95,24 +114,6 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
       };
     }
   }, [isOpen, exhibitions.length]);
-
-  const fetchExhibitions = async () => {
-    if (!user) return;
-
-    try {
-      const response = await fetch(`/api/exhibits?userId=${user.id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch exhibitions');
-      }
-      const result = await response.json();
-      const exhibitions: Exhibition[] = result.data || result;
-      setExhibitions(exhibitions);
-    } catch (error) {
-      console.error('Error fetching exhibitions:', error);
-      setMessage('Failed to load exhibitions');
-      setMessageType('error');
-    }
-  };
 
   const handleAddToExhibition = async () => {
     if (!selectedExhibition || !user) {
@@ -165,7 +166,6 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
     setSelectedExhibition('');
     onClose();
   };
-
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       handleClose();
@@ -236,7 +236,7 @@ export default function AddToExhibitModal({ isOpen, onClose, itemData }: AddToEx
             role="alert"
           >
             <p className="text-sm text-yellow-800">
-              You don't have any exhibitions yet. Create one first from the homepage.
+              You don&apos;t have any exhibitions yet. Create one first from the homepage.
             </p>
           </div>
         )}

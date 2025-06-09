@@ -668,7 +668,7 @@ export default function HomePage() {
                   <div className="text-4xl sm:text-6xl mb-4 sm:mb-6" aria-hidden="true">🔍</div>
                   <h3 className="text-lg sm:text-2xl font-serif text-amber-800 mb-4">No Treasures Found</h3>
                   <p className="text-sm sm:text-base text-stone-600 mb-4 sm:mb-6 max-w-md mx-auto">
-                    We couldn't find any artifacts matching your search. Try adjusting your terms or clearing some filters.
+                    We couldn&apos;t find any artifacts matching your search. Try adjusting your terms or clearing some filters.
                   </p>
                   {getActiveFilterCount() > 0 && (
                     <button
@@ -690,7 +690,7 @@ export default function HomePage() {
               <div className="text-4xl sm:text-6xl mb-4 sm:mb-6" aria-hidden="true">🏛️</div>
               <h3 className="text-lg sm:text-2xl font-serif text-amber-800 mb-4">Begin Your Historical Journey</h3>
               <p className="text-sm sm:text-base text-stone-600 mb-4 sm:mb-6 max-w-lg mx-auto">
-                Enter a search term above to explore thousands of medieval artifacts, illuminated manuscripts, and historical treasures from Europe's finest collections.
+                Enter a search term above to explore thousands of medieval artifacts, illuminated manuscripts, and historical treasures from Europe&apos;s finest collections.
               </p>
               <div className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-amber-100 to-stone-100 border border-stone-300 rounded-lg sm:rounded-xl">
                 <span className="text-amber-600 mr-2" aria-hidden="true">💡</span>

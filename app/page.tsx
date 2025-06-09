@@ -199,7 +199,7 @@ export default function Home() {
   };
 
   // Modal keyboard trap
-  const handleModalKeyDown = (e: React.KeyboardEvent, modalType: string) => {
+  const handleModalKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
       const modal = e.currentTarget as HTMLDivElement;
       const focusableElements = modal.querySelectorAll(
@@ -222,38 +222,40 @@ export default function Home() {
     }
   };
 
-  const updateExhibits = async () => {
-    if (!isLoggedIn || !user || exhibitionsLoading) return;
+  const updateExhibits = useCallback(async () => {
+  if (!isLoggedIn || !user || exhibitionsLoading) return;
 
-    setExhibitionsLoading(true);
-    try {
-      const url = `/api/exhibits?userId=${user.id}&page=${pagination.currentPage}&pageSize=${pagination.pageSize}&sortBy=${exhibitionSort}`;
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
+  setExhibitionsLoading(true);
+  try {
+    const url = `/api/exhibits?userId=${user.id}&page=${pagination.currentPage}&pageSize=${pagination.pageSize}&sortBy=${exhibitionSort}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch exhibitions');
-      }
-
-      const result = await response.json();
-      
-      setExhibitions(result.data);
-      setPagination(prev => ({
-        ...prev,
-        totalPages: result.pagination.totalPages,
-        totalItems: result.pagination.totalItems,
-        currentPage: result.pagination.currentPage
-      }));
-      
-    } catch (error) {
-      setExhibitionMessage("Failed to load exhibitions. Please try again.");
-    } finally {
-      setExhibitionsLoading(false);
+    if (!response.ok) {
+      throw new Error('Failed to fetch exhibitions');
     }
-  };
+
+    const result = await response.json();
+    
+    setExhibitions(result.data);
+    setPagination(prev => ({
+      ...prev,
+      totalPages: result.pagination.totalPages,
+      totalItems: result.pagination.totalItems,
+      currentPage: result.pagination.currentPage
+    }));
+    
+  } catch (error) {
+    console.error('Error loading exhibitions:', error);
+    setExhibitionMessage("Failed to load exhibitions. Please try again.");
+  } finally {
+    setExhibitionsLoading(false);
+  }
+}, [isLoggedIn, user, exhibitionsLoading, pagination.currentPage, pagination.pageSize, exhibitionSort]);
+
 
   const fetchExhibitionItems = async (
     exhibitionId: string, 
@@ -314,10 +316,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (isLoggedIn && user && !loading && !exhibitionsLoading) {
-      updateExhibits();
-    }
-  }, [isLoggedIn, user, loading, pagination.currentPage, pagination.pageSize, exhibitionSort]);
+  if (isLoggedIn && user && !loading && !exhibitionsLoading) {
+    updateExhibits();
+  }
+}, [isLoggedIn, user, loading, exhibitionsLoading, pagination.currentPage, pagination.pageSize, exhibitionSort, updateExhibits]);
 
   // Exhibition pagination handlers
   const handlePageChange = useCallback((page: number): void => {
@@ -435,7 +437,8 @@ export default function Home() {
       setShowCreateModal(false);
       setCreateFormData({ username: "", email: "", password: "" });
     } catch (error) {
-      alert("Failed to create account. Please try again.");
+      alert("Failed to create account. Please try again.")
+      console.error("Error on account creation:", error);
     }
   };
 
@@ -1030,7 +1033,7 @@ export default function Home() {
             <div 
               ref={loginModalRef}
               className="bg-white/90 backdrop-blur-sm p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-amber-300"
-              onKeyDown={(e) => handleModalKeyDown(e, 'login')}
+              onKeyDown={handleModalKeyDown}
             >
               <h3 id="login-modal-title" className="text-2xl font-bold mb-6 text-amber-900 border-b border-amber-400 pb-3">
                 Login
@@ -1106,7 +1109,7 @@ export default function Home() {
             <div 
               ref={createModalRef}
               className="bg-white/90 backdrop-blur-sm p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-amber-300"
-              onKeyDown={(e) => handleModalKeyDown(e, 'create')}
+              onKeyDown={handleModalKeyDown}
             >
               <h3 id="create-modal-title" className="text-2xl font-bold mb-6 text-amber-900 border-b border-amber-400 pb-3">
                 Create Account
@@ -1188,7 +1191,7 @@ export default function Home() {
             <div 
               ref={exhibitionModalRef}
               className="bg-white/90 backdrop-blur-sm p-6 rounded-lg shadow-2xl max-w-sm w-full border-2 border-amber-300"
-              onKeyDown={(e) => handleModalKeyDown(e, 'exhibition')}
+              onKeyDown={handleModalKeyDown}
             >
               <h2 id="exhibition-modal-title" className="text-xl font-bold mb-6 text-amber-900 border-b border-amber-400 pb-3">
                 Create New Exhibition
