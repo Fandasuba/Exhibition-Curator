@@ -797,7 +797,7 @@ const getPaginatedItems = (exhibitionId: string) => {
         <section className="mb-8">
           <Link href="/artefacts">
             <button className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded border border-amber-500 hover:border-amber-400 transition-all duration-200 font-medium text-lg shadow-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
-              🔍 Find Artefacts
+              Find Artefacts
             </button>
           </Link>
         </section>
@@ -818,7 +818,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                   aria-label="Create a new exhibition"
                   aria-disabled={exhibitionsLoading}
                 >
-                  ✨ Create Exhibition
+                  Create Exhibition
                 </button>
               </header>
               
@@ -943,7 +943,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                                   aria-label={`Delete ${exhibition.name} exhibition`}
                                   aria-disabled={update}
                                 >
-                                  🗑️ Delete
+                                  Delete
                                 </button>
                               </div>
                             </div>
