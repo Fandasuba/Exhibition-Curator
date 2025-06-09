@@ -113,51 +113,25 @@ export default function Home() {
   // Helper function to get random preview image from exhibition items
   const getRandomPreviewImage = (exhibition: ExhibitionItem): string | null => {
     if (!exhibition.saveditems || exhibition.saveditems.length === 0) {
-      console.log(`Exhibition "${exhibition.name}": No saved items`);
       return null;
     }
     
-    // Debug: Log all edmPreview values to see what we're working with
-    console.log(`\n=== DEBUGGING EXHIBITION: "${exhibition.name}" ===`);
-    console.log('Total items:', exhibition.saveditems.length);
-    
-    exhibition.saveditems.forEach((item, index) => {
-      console.log(`Item ${index}:`, {
-        title: item.title?.substring(0, 50) + '...',
-        edmPreview: item.edmPreview,
-        edmPreviewType: typeof item.edmPreview,
-        edmPreviewLength: item.edmPreview ? item.edmPreview.length : 'N/A'
-      });
-    });
-    
-    // Create array of all items with ANY edmPreview value (very permissive)
     const itemsWithImages = [];
     
     for (const item of exhibition.saveditems) {
-      // Very permissive check - just needs to exist and not be completely empty
       if (item.edmPreview && 
           item.edmPreview.toString().trim().length > 0) {
         const preview = item.edmPreview.toString().trim();
-        console.log('✓ Found valid preview:', preview);
         itemsWithImages.push(preview);
-      } else {
-        console.log('✗ Rejected preview:', item.edmPreview, 'Type:', typeof item.edmPreview);
       }
     }
     
-    console.log(`Found ${itemsWithImages.length} items with previews out of ${exhibition.saveditems.length} total`);
-    console.log('Valid previews:', itemsWithImages);
-    console.log('=== END DEBUG ===\n');
-    
-    // If no valid previews found, return null
     if (itemsWithImages.length === 0) {
       return null;
     }
     
-    // Randomly select a valid preview string
     const randomIndex = Math.floor(Math.random() * itemsWithImages.length);
     const selectedPreview = itemsWithImages[randomIndex];
-    console.log(`Selected preview for "${exhibition.name}":`, selectedPreview);
     return selectedPreview;
   };
 
@@ -206,7 +180,6 @@ export default function Home() {
       }));
       
     } catch (error) {
-      console.error("Error fetching exhibits:", error);
       setExhibitionMessage("Failed to load exhibitions. Please try again.");
     } finally {
       setExhibitionsLoading(false);
@@ -221,7 +194,6 @@ export default function Home() {
   ) => {
     if (!user || itemsLoading[exhibitionId]) return;
     
-    // Use provided parameters or fall back to current state
     const currentPagination = itemsPagination[exhibitionId] || { 
       currentPage: 1, 
       pageSize: 8, 
@@ -233,7 +205,6 @@ export default function Home() {
     const finalPageSize = pageSize ?? currentPagination.pageSize;
     const finalSortBy = sortBy ?? itemsSort[exhibitionId] ?? 'title-asc';
     
-    // Set loading state
     setItemsLoading(prev => ({ ...prev, [exhibitionId]: true }));
     
     try {
@@ -250,7 +221,6 @@ export default function Home() {
 
       const result = await response.json();
       
-      // Update states in batch to avoid race conditions
       setExhibitionItems(prev => ({
         ...prev,
         [exhibitionId]: result.data
@@ -267,7 +237,6 @@ export default function Home() {
       }));
       
     } catch (error) {
-      console.error("Error fetching exhibition items:", error);
       setExhibitionMessage(`Failed to load items: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setTimeout(() => setExhibitionMessage(''), 5000);
     } finally {
@@ -275,14 +244,13 @@ export default function Home() {
     }
   };
 
-  // Effects
   useEffect(() => {
     if (isLoggedIn && user && !loading && !exhibitionsLoading) {
       updateExhibits();
     }
   }, [isLoggedIn, user, loading, pagination.currentPage, pagination.pageSize, exhibitionSort]);
 
-  // Exhibition pagination handlers
+  // pagination section
   const handlePageChange = useCallback((page: number): void => {
     if (exhibitionsLoading) return;
     setPagination(prev => ({ ...prev, currentPage: page }));
@@ -299,7 +267,6 @@ export default function Home() {
     setPagination(prev => ({ ...prev, currentPage: 1 }));
   }, [exhibitionsLoading]);
 
-  // Item pagination handlers with direct parameter passing
  const handleItemsPageChange = async (exhibitionId: string, page: number): Promise<void> => {
   setItemsPagination(prev => ({
     ...prev,
@@ -313,7 +280,6 @@ export default function Home() {
   const handleItemsPageSizeChange = async (exhibitionId: string, size: number): Promise<void> => {
     if (itemsLoading[exhibitionId]) return;
     
-    // Update state first
     setItemsPagination(prev => ({
       ...prev,
       [exhibitionId]: {
@@ -323,14 +289,12 @@ export default function Home() {
       }
     }));
     
-    // Fetch with new page size and reset to page 1
     await fetchExhibitionItems(exhibitionId, 1, size);
   };
 
   const handleItemsSortChange = async (exhibitionId: string, sortBy: ItemSortOption): Promise<void> => {
     if (itemsLoading[exhibitionId]) return;
     
-    // Update state first
     setItemsSort(prev => ({
       ...prev,
       [exhibitionId]: sortBy
@@ -344,7 +308,6 @@ export default function Home() {
       }
     }));
     
-    // Fetch with new sort and reset to page 1
     await fetchExhibitionItems(exhibitionId, 1, undefined, sortBy);
   };
 
@@ -397,7 +360,6 @@ export default function Home() {
       setShowCreateModal(false);
       setCreateFormData({ username: "", email: "", password: "" });
     } catch (error) {
-      console.error(error);
       alert("Failed to create account. Please try again.");
     }
   };
@@ -432,7 +394,6 @@ export default function Home() {
     });
   };
 
-  // Exhibition CRUD handlers
   const handleAddExhibition = async () => {
     if (!isLoggedIn || !user || !newExhibitionTitle) {
       setExhibitionMessage('Please provide a title and be logged in.');
@@ -534,7 +495,6 @@ export default function Home() {
     }
     
   } catch (error) {
-    console.error("Error updating exhibit:", (error as Error).message);
   } finally {
     setExhibitUpdate(false);
   }
@@ -554,7 +514,6 @@ export default function Home() {
       
       await updateExhibits();
     } catch (error) {
-      console.error("Error deleting exhibit:", error);
     } finally {
       setExhibitUpdate(false);
     }

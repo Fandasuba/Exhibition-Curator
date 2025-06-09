@@ -47,43 +47,53 @@ export function searchForRNG() {
   const randomIdea = searchForIdeas[randomIndex];
 switch (randomIdea) {
     case "Vikings":
-      return "Try searching for the Vikings.";
+      return "Vikings.";
     case "Battles":
-      return "Explore historical battles.";
+      return "Battles.";
     case "Reconquista":
-      return "Research the Reconquista.";
+      return "Reconquista.";
     case "Plantagenet":
-      return "Learn about the Plantagenet dynasty.";
+      return "Plantagenet dynasty.";
     case "30 Years War":
-      return "Look into the Thirty Years War.";
+      return "Thirty Years War.";
     case "Crusades":
-      return "Dive into the Crusades.";
+      return "Crusades.";
     case "Reformation":
-      return "Discover the Reformation.";
+      return "Reformation.";
     case "Renaissance":
-      return "Explore the Renaissance.";
+      return "Renaissance.";
     case "Black Death":
-      return "Read about the Black Death.";
+      return "Black Death.";
     case "Ottoman Empire":
-      return "Search for the Ottoman Empire.";
+      return "Ottoman Empire.";
     case "Carolingian":
-      return "Study the Carolingian period.";
+      return "Carolingian period.";
     case "Anglo Saxons":
-      return "Learn about the Anglo-Saxons.";
+      return "Anglo-Saxons.";
     case "Holy Roman Empire":
-      return "Explore the Holy Roman Empire.";
+      return "Holy Roman Empire.";
     case "Vatican":
-      return "Look up the Vatican's history.";
+      return "Vatican";
     case "Hanseatic League":
-      return "Research the Hanseatic League.";
+      return "Hanseatic League.";
     case "New World":
-      return "Discover the New World.";
+      return "New World.";
     case "Tudors":
-      return "Learn about the Tudors.";
+      return "Tudors.";
     case "100 Years War":
-      return "Explore the 100 Years War.";
+      return "100 Years War.";
     case "Habsburg":
-      return "Research the Habsburg dynasty.";
+      return "Habsburg dynasty.";
+    case "Maps":
+      return "Maps";
+    case "Coins":
+      return "Coins";  
+    case "Pope":
+      return "Pope";
+    case "Medieval armour":
+      return "Medieval armour";
+    case "Rome":
+      return "Rome";  
     default:
       return "";
   }

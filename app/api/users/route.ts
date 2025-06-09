@@ -3,8 +3,6 @@ import { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Call your backend instead of database directly
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -3,16 +3,12 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 const secretKey = process.env.SESSION_SECRET;
-
-// Only throw error at runtime, not during build
 const getKey = () => {
   if (!secretKey) {
     throw new Error('SESSION_SECRET environment variable is not set');
   }
   return new TextEncoder().encode(secretKey);
 };
-
-// Removed unused key variable - using getKey() function instead
 
 interface SessionPayload extends JWTPayload {
   userId: string;
@@ -22,7 +18,7 @@ interface SessionPayload extends JWTPayload {
 }
 
 export async function encrypt(payload: Omit<SessionPayload, 'iat' | 'exp'>): Promise<string> {
-  const safeKey = getKey(); // This will throw at runtime if needed
+  const safeKey = getKey();
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -32,7 +28,7 @@ export async function encrypt(payload: Omit<SessionPayload, 'iat' | 'exp'>): Pro
 
 export async function decrypt(token: string): Promise<SessionPayload | null> {
   try {
-    const safeKey = getKey(); // This will throw at runtime if needed
+    const safeKey = getKey();
     const { payload } = await jwtVerify(token, safeKey, {
       algorithms: ['HS256'],
     });
@@ -77,7 +73,6 @@ export async function updateSession(request: NextRequest): Promise<NextResponse 
   if (!sessionCookie) return;
   const parsed = await decrypt(sessionCookie);
   if (!parsed) return;
-  // Refreshes the cookie session.
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   parsed.expiresAt = expiresAt;
   const response = NextResponse.next();

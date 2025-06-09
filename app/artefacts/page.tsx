@@ -44,8 +44,6 @@ export default function HomePage() {
   const [setIdea, setSearchIdea] = useState('')
   const [randomIdea, setRandomIdea] = useState<boolean>(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
-
-  // Enhanced filters state
   const [filters, setFilters] = useState<SearchFilters>({
     mediaType: '',
     reusability: '',
@@ -69,7 +67,6 @@ export default function HomePage() {
     }
   }, [randomIdea]);
 
-  // Pagination state
   const [pagination, setPagination] = useState<PaginationInfo>({
     currentPage: 1,
     totalPages: 1,
@@ -77,7 +74,7 @@ export default function HomePage() {
     limit: 10
   });
 
-  // Build query refinements (qf parameters) based on filters
+  // Filters
   const buildQueryRefinements = (): string[] => {
     const refinements: string[] = [];
 
@@ -121,8 +118,6 @@ export default function HomePage() {
     setIsLoading(true);
     try {
       let url = `/api/${apiSource}?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`;
-      
-      // Add query refinements if any filters are applied (only for Europeana)
       if (apiSource === 'europeana') {
         const refinements = buildQueryRefinements();
         refinements.forEach(refinement => {
@@ -136,7 +131,6 @@ export default function HomePage() {
       }
      
       const data = await response.json();
-      console.log("Search response:", data);
       setResults(data.items || []);
       if (data.pagination) {
         setPagination(data.pagination);
@@ -207,7 +201,6 @@ export default function HomePage() {
     return count;
   };
 
-  // Reset pagination when changing API source or filters
   useEffect(() => {
     setPagination({
       currentPage: 1,
@@ -220,7 +213,6 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-stone-100 via-amber-50 to-stone-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
-        {/* Hero Section - Smaller on mobile */}
         <div className="text-center mb-6 sm:mb-12">
           <h1 className="text-3xl sm:text-5xl font-serif text-amber-800 mb-2 sm:mb-4 drop-shadow-sm">
             🏛️ <span className="sm:hidden">Historical Europe</span>
@@ -231,7 +223,7 @@ export default function HomePage() {
           </p>
         </div>
         
-        {/* Search Controls Section - More compact on mobile */}
+        {/* Search Controls Section*/}
         <section className="mb-6 sm:mb-12">
           <div className="bg-white/80 backdrop-blur border border-stone-300 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
             <div className="bg-gradient-to-r from-amber-700 to-amber-800 px-4 sm:px-8 py-4 sm:py-6">
@@ -241,7 +233,6 @@ export default function HomePage() {
             
             <div className="p-4 sm:p-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                {/* API Source Selector */}
                 <div className="lg:col-span-3">
                   <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                     Archive Source
@@ -296,7 +287,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Advanced Filters Toggle - Smaller on mobile */}
+              {/* Advanced Filters Toggle */}
               <div className="border-t border-stone-300 pt-4 sm:pt-6">
                 <button
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
@@ -322,12 +313,9 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* Advanced Filters Panel - Responsive grid */}
               {showAdvancedFilters && apiSource === 'europeana' && (
                 <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-stone-50 to-amber-50 rounded-lg sm:rounded-xl border border-stone-300">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    
-                    {/* All filters with smaller mobile styling */}
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                         Media Type
@@ -451,7 +439,6 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Year Range Filter - Responsive */}
                   <div className="mt-6 sm:mt-8">
                     <label className="block text-xs sm:text-sm font-medium text-stone-700 mb-2 sm:mb-3">
                       Year Range
@@ -485,7 +472,6 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Boolean Filters - Responsive */}
                   <div className="mt-6 sm:mt-8 grid grid-cols-1 gap-3 sm:gap-4">
                     <label className="flex items-center gap-3 text-stone-700 text-xs sm:text-sm cursor-pointer p-3 bg-white rounded-lg border border-stone-300 hover:bg-stone-50 transition-colors">
                       <input
@@ -507,7 +493,6 @@ export default function HomePage() {
                     </label>
                   </div>
 
-                  {/* Clear Filters Button */}
                   {getActiveFilterCount() > 0 && (
                     <div className="mt-4 sm:mt-6 text-center">
                       <button
@@ -538,7 +523,6 @@ export default function HomePage() {
             <>
               {results.length > 0 ? (
                 <>
-                  {/* Results Header - More compact on mobile */}
                   <div className="mb-4 sm:mb-8 bg-white/80 backdrop-blur border border-stone-300 rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6">
                     <div className="flex justify-between items-center">
                       <div>
@@ -560,12 +544,10 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Results Grid - Optimized for mobile performance */}
+                  {/* Results Grid */}
                   <div className="relative">
-                    {/* Simplified background for mobile performance */}
-                    <div className="absolute inset-0 bg-white/60 rounded-xl sm:rounded-2xl border border-stone-200 shadow-inner backdrop-blur-sm"></div>
                     
-                    {/* Cards Grid - 2 columns on mobile, 4 on desktop */}
+                    <div className="absolute inset-0 bg-white/60 rounded-xl sm:rounded-2xl border border-stone-200 shadow-inner backdrop-blur-sm"></div>
                     <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 p-3 sm:p-6 lg:p-8 z-20">
                       {results.map((item: Item, index: number) => (
                         <div key={index} className="w-full">
@@ -583,7 +565,6 @@ export default function HomePage() {
                     </div>
                   </div>
                   
-                  {/* Pagination component */}
                   {pagination.totalPages > 1 && (
                     <div className="flex justify-center mt-4 sm:mt-0">
                       <Pagination

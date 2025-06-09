@@ -26,7 +26,6 @@ const Header: React.FC = () => {
     <header className="bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 border-b-2 border-amber-600 shadow-lg">
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
-          {/* Logo/Title */}
           <Link href="/">
             <h1 className="text-lg sm:text-xl font-serif font-bold text-amber-100 hover:text-amber-50 cursor-pointer transition-colors duration-200 drop-shadow-sm flex items-center">
               🏛️ 
