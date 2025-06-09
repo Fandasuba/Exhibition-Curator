@@ -113,7 +113,6 @@ export default function Home() {
   
   const getRandomPreviewImage = (exhibition: ExhibitionItem): string | null => {
     if (!exhibition.saveditems || exhibition.saveditems.length === 0) {
-      console.log(`Exhibition "${exhibition.name}": No saved items`);
       return null;
     }
 
@@ -133,7 +132,6 @@ export default function Home() {
     
     const randomIndex = Math.floor(Math.random() * itemsWithImages.length);
     const selectedPreview = itemsWithImages[randomIndex];
-    console.log(`Selected preview for "${exhibition.name}":`, selectedPreview);
     return selectedPreview;
   };
 
