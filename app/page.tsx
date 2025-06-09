@@ -110,12 +110,13 @@ export default function Home() {
     { value: 'provider-desc', label: 'Provider Z-A' }
   ];
 
-  // Helper function to get random preview image from exhibition items
+  
   const getRandomPreviewImage = (exhibition: ExhibitionItem): string | null => {
     if (!exhibition.saveditems || exhibition.saveditems.length === 0) {
+      console.log(`Exhibition "${exhibition.name}": No saved items`);
       return null;
     }
-    
+
     const itemsWithImages = [];
     
     for (const item of exhibition.saveditems) {
@@ -123,15 +124,16 @@ export default function Home() {
           item.edmPreview.toString().trim().length > 0) {
         const preview = item.edmPreview.toString().trim();
         itemsWithImages.push(preview);
+      } else {
       }
     }
-    
     if (itemsWithImages.length === 0) {
       return null;
     }
     
     const randomIndex = Math.floor(Math.random() * itemsWithImages.length);
     const selectedPreview = itemsWithImages[randomIndex];
+    console.log(`Selected preview for "${exhibition.name}":`, selectedPreview);
     return selectedPreview;
   };
 
@@ -152,7 +154,6 @@ export default function Home() {
     }
   };
 
-  // Server-side data fetching
   const updateExhibits = async () => {
     if (!isLoggedIn || !user || exhibitionsLoading) return;
 
@@ -180,6 +181,7 @@ export default function Home() {
       }));
       
     } catch (error) {
+      console.error("Error fetching exhibits:", error);
       setExhibitionMessage("Failed to load exhibitions. Please try again.");
     } finally {
       setExhibitionsLoading(false);
@@ -220,7 +222,7 @@ export default function Home() {
       }
 
       const result = await response.json();
-      
+    
       setExhibitionItems(prev => ({
         ...prev,
         [exhibitionId]: result.data
@@ -237,20 +239,20 @@ export default function Home() {
       }));
       
     } catch (error) {
+      console.error("Error fetching exhibition items:", error);
       setExhibitionMessage(`Failed to load items: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setTimeout(() => setExhibitionMessage(''), 5000);
     } finally {
       setItemsLoading(prev => ({ ...prev, [exhibitionId]: false }));
     }
   };
-
   useEffect(() => {
     if (isLoggedIn && user && !loading && !exhibitionsLoading) {
       updateExhibits();
     }
   }, [isLoggedIn, user, loading, pagination.currentPage, pagination.pageSize, exhibitionSort]);
 
-  // pagination section
+  // Exhibition pagination handlers
   const handlePageChange = useCallback((page: number): void => {
     if (exhibitionsLoading) return;
     setPagination(prev => ({ ...prev, currentPage: page }));
@@ -288,13 +290,12 @@ export default function Home() {
         pageSize: size
       }
     }));
-    
+
     await fetchExhibitionItems(exhibitionId, 1, size);
   };
 
   const handleItemsSortChange = async (exhibitionId: string, sortBy: ItemSortOption): Promise<void> => {
     if (itemsLoading[exhibitionId]) return;
-    
     setItemsSort(prev => ({
       ...prev,
       [exhibitionId]: sortBy
@@ -307,7 +308,7 @@ export default function Home() {
         currentPage: 1
       }
     }));
-    
+
     await fetchExhibitionItems(exhibitionId, 1, undefined, sortBy);
   };
 
@@ -336,7 +337,6 @@ export default function Home() {
   }
 };
 
-  // Auth handlers
   const handleCreateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setCreateFormData((prev) => ({ ...prev, [name]: value }));
@@ -360,6 +360,7 @@ export default function Home() {
       setShowCreateModal(false);
       setCreateFormData({ username: "", email: "", password: "" });
     } catch (error) {
+      console.error(error);
       alert("Failed to create account. Please try again.");
     }
   };
@@ -495,6 +496,7 @@ export default function Home() {
     }
     
   } catch (error) {
+    console.error("Error updating exhibit:", (error as Error).message);
   } finally {
     setExhibitUpdate(false);
   }
@@ -514,12 +516,13 @@ export default function Home() {
       
       await updateExhibits();
     } catch (error) {
+      console.error("Error deleting exhibit:", error);
     } finally {
       setExhibitUpdate(false);
     }
   };
 
-  // Helper function for paginated items
+  //pagination
 const getPaginatedItems = (exhibitionId: string) => {
   const allItems = exhibitionItems[exhibitionId] || [];
   const pagination = itemsPagination[exhibitionId] || {
