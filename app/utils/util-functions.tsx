@@ -1,6 +1,3 @@
-import { RefObject } from "react";
-
-
 export function formatSources(apiSource: string): string {
   switch (apiSource) {
     case 'europeana':

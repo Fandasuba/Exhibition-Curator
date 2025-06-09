@@ -4,8 +4,6 @@ import { createSession } from "@/app/lib/session";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Call your backend login endpoint
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -13,8 +11,6 @@ export async function POST(request: NextRequest) {
     });
     
     const data = await response.json();
-    
-    // If login successful, create session
     if (response.ok && data.user) {
       await createSession(
         data.user.id.toString(), 
