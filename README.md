@@ -1,101 +1,186 @@
-# Exhibitoon Curator Notes
+# Exhibition Curator
 
+Hello, and welcome to Exhibition Curator. The purpose of this website is for users to be able to create an account and save custom named exhibitions. From there, they can search for keywords ranging from types of items they want to see, ranging from various locations, languages and date ranges. This helps history enthusiasts build a collection of items for a range of purposes, such as:
 
-## Project Overview
+- Historical Research
+- Travel planning
+- Hobbyist collection
 
-You’ve been invited by a coalition of museums and universities to develop a platform where users can explore virtual exhibitions from combined collections of antiquities and fine art. This platform will serve researchers, students, and art enthusiasts, providing a searchable and interactive experience of the collections. Minimum Viable Product (MVP)
+## About the APIs
 
-The platform (web app or progressive web app) must include the following features:
+As it stands, the website is using the Europeana API, which is a continent wide partnership agreement with various museums to upload their digitized archives to a central point. This central point has made it significantly easier to see what historical items exist across Europe from a variety of periods.
 
-Users can search artworks across collections from at least two different Museum or University APIs.
-Allow users to browse artworks, from a list view, with "Previous" and "Next" page navigation options to prevent loading of too many items at once.
-Users can filter and/or sort artworks to make it easier to navigate through larger lists of items.
-Display images and essential details about each artwork individually.
-Enable users to create, add items to, and remove items from, personal exhibition collections of saved artworks. A single user can have multiple exhibition collections.
-Users can view their exhibitions and the saved items within each collection.
+In addition, if you're into Primary Source research, then we have offered the Oxford University Manuscript API, so anyone looking to see what historical documents written from a variety of ages still exist. This is perfect for students looking for items that may help them with their period research.
 
-Refer to Completion and Submission Requirements for more details.
+> **Note:** You also don't need to sign up to use the app. You can simply browse the third party APIs mentioned above and populate results. However, you cannot save exhibits and items to them without signing up. All accounts are secured safely on a PostgreSQL server hosted on Railway, and all passwords are encrypted ten times over to ensure safety of your passwords.
 
-## Tech Choices
+## Features
 
-Programming Languages: Use JavaScript or TypeScript.
-API Integration: Research and choose at least two free museum or university APIs to retrieve collection data. Be sure to sign up for any necessary developer accounts on free tiers.
-Hosting: Use a free distribution platform (e.g., GitHub Pages or Netlify).
-Implement security best practices (e.g. for handling of API keys).
+### Current Features
 
-The following technologies and tools are suggestions, not requirements:
+At the time of writing, the app features the following:
 
-React for the frontend.
-TanStack for managing API calls from the frontend.
-TypeScript Express server.
+- Login and create account
+- Custom exhibits
+- Third party API search
+- Ability to save items to your created exhibits
+- Renaissance period design
+- Accessibility features supported, but still a work in progress
 
-## UI Requirements
+### Planned Features
 
-Design should be responsive and adapt well across various screen sizes.
-Ensure accessibility for users with disabilities (e.g., support screen readers, keyboard navigation).
-The UI should clearly provide feedback on interactions, display errors (e.g., failed requests or missing fields) and show loading states when content is being fetched.
-Design should intuitively guide users to search, view, and create curated exhibitions.
+While the app's MVP is achieved, there are still some design and UX features I would love to add to the project:
 
-## Completion and Submission Requirements
+- Save an exhibit thumbnail
+- Item Card size consistency with scrollable text for longer than usual titles or descriptions
+- Dark Mode
+- Find other user exhibits
+- Public and private exhibits
+- Proper functioning account details, such as email integration, change password
 
-The due date will be provided, but it will be no later than four weeks after starting the project.
+## Live Demo
 
-Your project must fulfill the following criteria:
+The website is live at: https://european-exhibits-maker.up.railway.app/
 
-The project should be hosted and publicly accessible (from a web browser).
-README Documentation should include:
-    A summary of the project
-        (you may consider recording a video walkthrough of your platform, highlighting key features. Host this video on a free platform (e.g., YouTube) and include a link in your README.)
-    Clear instructions on how to run the project locally, including setup steps (e.g., installing dependencies and configuring environment variables).
-Meet the MVP requirements outlined above.
+## Local Installation
 
-Failure to meet these requirements may result in project rejection.
+### Prerequisites
 
-## Optional Extensions
+- Node.js and npm
+- PostgreSQL
+- Code editor of your choice
 
-If you complete the MVP and have time for additional features, consider implementing the following:
+### Frontend Setup
 
-User Accounts: Save curated exhibition collections within user profiles. Consider a back-end solution for securely storing data, and provide access to a whitelisted test account.
-Social Media Integration: Allow users to share exhibitions or individual artworks.
-Cross-Platform Access: Develop both a website and a mobile app.
-Advanced Search Options: Enable multiple filters for more refined search criteria.
+1. **Fork and clone the repository:**
+   ```bash
+   git clone https://github.com/Fandasuba/exhibition-curator
+   cd exhibition-curator
+   ```
 
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
+3. **Create environment file:**
+   Create a `.env` file in the root of the app with the following variables:
+   ```env
+   # Generate this using the command below
+   SECRET_SESSION=your-generated-secret-key
+   
+   # Backend API URL (will be localhost:8000 for local development)
+   NEXT_DOCKER_API_URL="http://localhost:8000"
+   
+   # Get your API key from Europeana API docs
+   EUROPEANA_API_KEY=your_europeana_api_key
+   ```
 
+4. **Generate your SECRET_SESSION key:**
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+   Copy the output and use it as your `SECRET_SESSION` value.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+5. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+   
+   Your application should now be running on `localhost:3000` (or another available port). This will give you access to at least the third party API functions in the browse collection web page. You will still need to setup the backend repository to get the saved users and exhibits functionality working.
 
-## Getting Started
+### Backend Setup
 
-First, run the development server:
+1. **Install PostgreSQL:**
+   Download and install PostgreSQL from: https://www.postgresql.org/
+
+2. **Clone the backend repository:**
+   ```bash
+   git clone https://github.com/Fandasuba/exhibition-curator-be
+   cd exhibition-curator-be
+   npm install
+   ```
+
+### Database Setup
+
+1. **Connect to PostgreSQL:**
+   ```bash
+   psql -U postgres
+   ```
+   Enter the password you set during installation. If PostgreSQL made you create another username, feel free to use that instead.
+
+2. **Seed the database:**
+   When you have successfully installed the backend repo from the previous installation guide, you will need to run:
+   ```bash
+   npm run seed
+   ```
+   
+   This command runs the file in that repo called `run-seed`. This will begin creating a database called `exhibition_curator`, along with tables called `users` and `exhibitions`.
+
+3. **Test the database setup:**
+   ```bash
+   psql -U "your_psql_username" -d exhibition_curator
+   ```
+   
+   Once you see the psql message appear in the terminal, run:
+   ```sql
+   SELECT * FROM users;
+   ```
+   
+   This should show you a list of premade user names created from the run-seed command. This will tell you what has been populated and show that it works and is ready to take requests and responses.
+
+### Backend Environment Setup
+
+Create a `.env` file in the backend repository with the following variables:
+
+```env
+# Database Connection
+DATABASE_URL="postgresql://username:password@localhost:5432/exhibition_curator"
+
+# Individual Database Components
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=exhibition_curator
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
+
+# Session Secret (use the same one as frontend)
+SECRET_SESSION=your-generated-secret-key
+
+# Server Configuration
+PORT=8000
+NODE_ENV=development
+```
+
+**Important Notes:**
+- Change the `username` to the PostgreSQL username you set up, or `postgres` by default
+- The `password` should be whatever password you set in PostgreSQL setup
+- The `5432` should be the port that PostgreSQL defaults to on installation or whatever you changed it to
+
+These environment variables are important as the PostgreSQL server is technically a third server. The backend repository's job is to manage what information is being sent from the client side you setup earlier, translate it into database ready information, and then use the above secrets to access the PostgreSQL server hosted on your machine.
+
+### Start the Backend Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Your Express server should now be running on `http://localhost:8000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing the Full Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Once both frontend and backend are setup, you should be able to test that your client side can:
+- Create an account
+- Login
+- Save exhibits
+- Save items to those exhibits
 
-## Learn More
+## Repository Links
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend:** https://github.com/Fandasuba/exhibition-curator
+- **Backend:** https://github.com/Fandasuba/exhibition-curator-be
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Europeana API:** Get your API key from the Europeana API documentation
+- **Oxford University Manuscript API:** Available for primary source research
