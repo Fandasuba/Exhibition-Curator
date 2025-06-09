@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useUser } from "./user-context";
 import Card from "./components/itemCards";
@@ -91,6 +91,14 @@ export default function Home() {
   const [itemsLoading, setItemsLoading] = useState<{[key: string]: boolean}>({});
   const [exhibitionsLoading, setExhibitionsLoading] = useState<boolean>(false);
 
+  // Modal refs for keyboard navigation
+  const loginModalRef = useRef<HTMLDivElement>(null);
+  const createModalRef = useRef<HTMLDivElement>(null);
+  const exhibitionModalRef = useRef<HTMLDivElement>(null);
+  const loginFirstInputRef = useRef<HTMLInputElement>(null);
+  const createFirstInputRef = useRef<HTMLInputElement>(null);
+  const exhibitionInputRef = useRef<HTMLInputElement>(null);
+
   // Sort option labels
   const exhibitionSortOptions = [
     { value: 'date-desc', label: 'Newest First' },
@@ -109,6 +117,162 @@ export default function Home() {
     { value: 'provider-asc', label: 'Provider A-Z' },
     { value: 'provider-desc', label: 'Provider Z-A' }
   ];
+
+  // Login Modal keyboard navigation
+  useEffect(() => {
+    if (showLoginModal) {
+      setTimeout(() => {
+        if (loginFirstInputRef.current) {
+          loginFirstInputRef.current.focus();
+        }
+      }, 100);
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          handleCloseLoginModal();
+        }
+      };
+
+      const handleTabKey = (e: KeyboardEvent) => {
+        if (e.key === 'Tab') {
+          const focusableElements = loginModalRef.current?.querySelectorAll(
+            'button, input, [tabindex]:not([tabindex="-1"])'
+          );
+          
+          if (focusableElements && focusableElements.length > 0) {
+            const firstElement = focusableElements[0] as HTMLElement;
+            const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        }
+      };
+
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleTabKey);
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener('keydown', handleTabKey);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showLoginModal]);
+
+  // Create Account Modal keyboard navigation
+  useEffect(() => {
+    if (showCreateModal) {
+      setTimeout(() => {
+        if (createFirstInputRef.current) {
+          createFirstInputRef.current.focus();
+        }
+      }, 100);
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          handleCloseCreateModal();
+        }
+      };
+
+      const handleTabKey = (e: KeyboardEvent) => {
+        if (e.key === 'Tab') {
+          const focusableElements = createModalRef.current?.querySelectorAll(
+            'button, input, [tabindex]:not([tabindex="-1"])'
+          );
+          
+          if (focusableElements && focusableElements.length > 0) {
+            const firstElement = focusableElements[0] as HTMLElement;
+            const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        }
+      };
+
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleTabKey);
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener('keydown', handleTabKey);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showCreateModal]);
+
+  // Exhibition Modal keyboard navigation
+  useEffect(() => {
+    if (showExhibitionModal) {
+      setTimeout(() => {
+        if (exhibitionInputRef.current) {
+          exhibitionInputRef.current.focus();
+        }
+      }, 100);
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          handleCloseExhibitionModal();
+        }
+      };
+
+      const handleTabKey = (e: KeyboardEvent) => {
+        if (e.key === 'Tab') {
+          const focusableElements = exhibitionModalRef.current?.querySelectorAll(
+            'button, input, [tabindex]:not([tabindex="-1"])'
+          );
+          
+          if (focusableElements && focusableElements.length > 0) {
+            const firstElement = focusableElements[0] as HTMLElement;
+            const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        }
+      };
+
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleTabKey);
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.removeEventListener('keydown', handleTabKey);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showExhibitionModal]);
 
   
   const getRandomPreviewImage = (exhibition: ExhibitionItem): string | null => {
@@ -425,6 +589,30 @@ export default function Home() {
       setExhibitionMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setExhibitionLoading(false);
+    }
+  };
+
+  // Modal close handlers
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false);
+    setLoginError("");
+    setLoginFormData({ username: "", password: "" });
+  };
+
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+    setCreateFormData({ username: "", email: "", password: "" });
+  };
+
+  const handleCloseExhibitionModal = () => {
+    setShowExhibitionModal(false);
+    setNewExhibitionTitle('');
+    setExhibitionMessage('');
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent, closeHandler: () => void) => {
+    if (e.target === e.currentTarget) {
+      closeHandler();
     }
   };
 
@@ -966,11 +1154,16 @@ const getPaginatedItems = (exhibitionId: string) => {
         {showLoginModal && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={(e) => handleBackdropClick(e, handleCloseLoginModal)}
             role="dialog"
             aria-modal="true"
             aria-labelledby="login-modal-title"
           >
-            <div className="bg-white/90 backdrop-blur-sm p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-amber-300">
+            <div 
+              ref={loginModalRef}
+              className="bg-white/90 backdrop-blur-sm p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-amber-300"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3 id="login-modal-title" className="text-2xl font-bold mb-6 text-amber-900 border-b border-amber-400 pb-3">
                 Login
               </h3>
@@ -985,6 +1178,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                 <label htmlFor="login-username" className="sr-only">Username</label>
                 <input
                   id="login-username"
+                  ref={loginFirstInputRef}
                   type="text"
                   name="username"
                   placeholder="Username"
@@ -1009,11 +1203,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                 <div className="flex justify-end space-x-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowLoginModal(false);
-                      setLoginError("");
-                      setLoginFormData({ username: "", password: "" });
-                    }}
+                    onClick={handleCloseLoginModal}
                     className="px-4 py-2 bg-stone-600 hover:bg-stone-500 text-stone-100 rounded border border-stone-500 hover:border-stone-400 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
                   >
                     Cancel
@@ -1034,11 +1224,16 @@ const getPaginatedItems = (exhibitionId: string) => {
         {showCreateModal && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={(e) => handleBackdropClick(e, handleCloseCreateModal)}
             role="dialog"
             aria-modal="true"
             aria-labelledby="create-modal-title"
           >
-            <div className="bg-white/90 backdrop-blur-sm p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-amber-300">
+            <div 
+              ref={createModalRef}
+              className="bg-white/90 backdrop-blur-sm p-8 rounded-lg max-w-sm w-full shadow-2xl border-2 border-amber-300"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3 id="create-modal-title" className="text-2xl font-bold mb-6 text-amber-900 border-b border-amber-400 pb-3">
                 Create Account
               </h3>
@@ -1046,6 +1241,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                 <label htmlFor="create-username" className="sr-only">Username</label>
                 <input
                   id="create-username"
+                  ref={createFirstInputRef}
                   type="text"
                   name="username"
                   placeholder="Username"
@@ -1082,10 +1278,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                 <div className="flex justify-end space-x-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowCreateModal(false);
-                      setCreateFormData({ username: "", email: "", password: "" });
-                    }}
+                    onClick={handleCloseCreateModal}
                     className="px-4 py-2 bg-stone-600 hover:bg-stone-500 text-stone-100 rounded border border-stone-500 hover:border-stone-400 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
                   >
                     Cancel
@@ -1106,11 +1299,16 @@ const getPaginatedItems = (exhibitionId: string) => {
         {showExhibitionModal && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={(e) => handleBackdropClick(e, handleCloseExhibitionModal)}
             role="dialog"
             aria-modal="true"
             aria-labelledby="exhibition-modal-title"
           >
-            <div className="bg-white/90 backdrop-blur-sm p-6 rounded-lg shadow-2xl max-w-sm w-full border-2 border-amber-300">
+            <div 
+              ref={exhibitionModalRef}
+              className="bg-white/90 backdrop-blur-sm p-6 rounded-lg shadow-2xl max-w-sm w-full border-2 border-amber-300"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h2 id="exhibition-modal-title" className="text-xl font-bold mb-6 text-amber-900 border-b border-amber-400 pb-3">
                 Create New Exhibition
               </h2>
@@ -1118,6 +1316,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                 <label htmlFor="exhibition-title" className="sr-only">Exhibition title</label>
                 <input
                   id="exhibition-title"
+                  ref={exhibitionInputRef}
                   type="text"
                   value={newExhibitionTitle}
                   onChange={(e) => setNewExhibitionTitle(e.target.value)}
@@ -1130,11 +1329,7 @@ const getPaginatedItems = (exhibitionId: string) => {
                 <div className="flex justify-center space-x-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowExhibitionModal(false);
-                      setNewExhibitionTitle('');
-                      setExhibitionMessage('');
-                    }}
+                    onClick={handleCloseExhibitionModal}
                     className="px-4 py-2 bg-stone-600 hover:bg-stone-500 text-stone-100 rounded border border-stone-500 hover:border-stone-400 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2"
                   >
                     Cancel
