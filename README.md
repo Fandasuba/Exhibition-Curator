@@ -14,6 +14,11 @@ In addition, if you're into Primary Source research, then we have offered the Ox
 
 > **Note:** You also don't need to sign up to use the app. You can simply browse the third party APIs mentioned above and populate results. However, you cannot save exhibits and items to them without signing up. All accounts are secured safely on a PostgreSQL server hosted on Railway, and all passwords are encrypted ten times over to ensure safety of your passwords.
 
+<div align="center">
+  <img src="./images/exhibition-curator-logged-in.png" alt="Picture of the retrieved items while logged in" width="45%" />
+  <img src="./images/exhibition-curator-not-logged-in.png" alt="Picture of the retrieved items not logged in" width="45%" />
+</div>
+
 ## Features
 
 ### Current Features
